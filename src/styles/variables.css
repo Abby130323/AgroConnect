@@ -1,0 +1,100 @@
+:root {
+  /* Paleta AgroTech: Verdes orgánicos, ámbar de cosecha, neutros frescos */
+  --primary-50: #e8f5e9;
+  --primary-100: #c8e6c9;
+  --primary-200: #a5d6a7;
+  --primary-300: #81c784;
+  --primary-400: #66bb6a;
+  --primary-500: #2e7d32; /* Verde campestre principal */
+  --primary-600: #1b5e20; /* Verde oscuro bosque */
+  --primary-700: #144917;
+  --primary-800: #0d3110;
+  
+  --harvest-amber: #f59e0b;
+  --harvest-amber-dark: #d97706;
+  --harvest-gold: #fbbf24;
+
+  --earth-brown: #795548;
+  --earth-light: #efebe9;
+
+  --accent-terracotta: #d84315;
+  --accent-sky: #0284c7;
+
+  /* Superficies y Neutros */
+  --bg-body: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-muted: #f1f5f9;
+  --bg-subtle: #f8fafc;
+
+  /* Tipografía y Textos */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+
+  /* Bordes y Separadores */
+  --border-subtle: #e2e8f0;
+  --border-focus: #2e7d32;
+  --border-error: #ef4444;
+
+  /* Semántica / Feedback */
+  --success: #16a34a;
+  --success-bg: #dcfce7;
+  --warning: #eab308;
+  --warning-bg: #fef9c3;
+  --danger: #dc2626;
+  --danger-bg: #fee2e2;
+  --info: #0284c7;
+  --info-bg: #e0f2fe;
+
+  /* Tipografía Fluida */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-heading: 'Outfit', var(--font-sans);
+  
+  --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
+  --font-size-sm: clamp(0.8125rem, 0.78rem + 0.25vw, 0.875rem);
+  --font-size-base: clamp(0.9375rem, 0.9rem + 0.3vw, 1rem);
+  --font-size-lg: clamp(1.0625rem, 1rem + 0.4vw, 1.1875rem);
+  --font-size-xl: clamp(1.25rem, 1.15rem + 0.6vw, 1.4375rem);
+  --font-size-2xl: clamp(1.5rem, 1.35rem + 0.9vw, 1.875rem);
+  --font-size-3xl: clamp(1.875rem, 1.6rem + 1.4vw, 2.375rem);
+  --font-size-4xl: clamp(2.25rem, 1.9rem + 2vw, 3rem);
+
+  /* Espaciados */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Bordes Redondeados */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Sombras y Elevación */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+
+  /* Transiciones */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+
+  /* Breakpoints Lógicos */
+  --bp-sm: 480px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+  --bp-2xl: 1536px;
+}
