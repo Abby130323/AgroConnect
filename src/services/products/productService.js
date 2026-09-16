@@ -1,8 +1,132 @@
 import httpClient from '../http/httpClient.js';
 import { API_ENDPOINTS } from '../../config/api.js';
-import { INITIAL_PRODUCTS } from '../../utils/seedData.js';
+import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from '../../utils/seedData.js';
 
 const LOCAL_STORAGE_PRODUCTS_KEY = 'agroconnect_products_cache';
+/** Versión del esquema de caché: incrementar cuando cambie la estructura de datos */
+const CACHE_VERSION_KEY = 'agroconnect_products_cache_v';
+const CURRENT_CACHE_VERSION = '4';
+
+/** IDs válidos de categoría (de INITIAL_CATEGORIES) para verificar integridad */
+const VALID_CAT_IDS = new Set(INITIAL_CATEGORIES.map(c => String(c.id)));
+/** Mapa nombre-de-producto → INITIAL_PRODUCT para reparar categoryId de datos de API */
+const INITIAL_BY_NAME = new Map(
+  INITIAL_PRODUCTS.map(ip => [ip.name.toLowerCase(), ip])
+);
+
+/**
+ * Asigna la categoría canónica real a un producto según su nombre y tipo.
+ * Garantiza consistencia absoluta entre la fuente de datos, el filtro y la tarjeta.
+ */
+export const resolveCanonicalCategoryId = (product) => {
+  const name = (product?.name || product?.nombre || '').toLowerCase().trim();
+
+  // 1. Frutas y Verduras de Temporada (Categoría 3)
+  if (
+    name.includes('mango') ||
+    name.includes('uchuva') ||
+    name.includes('banano') ||
+    name.includes('aguacate') ||
+    name.includes('mora de castilla') ||
+    /\bmora\b/i.test(name) ||
+    name.includes('lulo') ||
+    name.includes('maracuyá') ||
+    name.includes('maracuya')
+  ) {
+    return '3';
+  }
+
+  // 2. Tubérculos y Plátanos (Categoría 5)
+  if (
+    name.includes('cebolla') ||
+    name.includes('zanahoria') ||
+    name.includes('papa') ||
+    name.includes('yuca') ||
+    name.includes('plátano') ||
+    name.includes('platano') ||
+    name.includes('arracacha') ||
+    name.includes('ñame') ||
+    name.includes('name diamante')
+  ) {
+    return '5';
+  }
+
+  // 3. Verduras y Hortalizas (Categoría 4)
+  if (
+    name.includes('espinaca') ||
+    name.includes('pimentón') ||
+    name.includes('pimenton') ||
+    name.includes('tomate') ||
+    name.includes('lechuga') ||
+    name.includes('cilantro') ||
+    name.includes('arveja') ||
+    name.includes('albahaca') ||
+    name.includes('hierbabuena') ||
+    name.includes('romero')
+  ) {
+    return '4';
+  }
+
+  // 4. Carnes de Res Seleccionadas (Categoría 1)
+  if (
+    product?.meatType === 'Res' ||
+    name.includes('punta de anca') ||
+    name.includes('lomo fino') ||
+    name.includes('costilla de res') ||
+    name.includes('sobrebarriga') ||
+    name.includes('molida especial')
+  ) {
+    return '1';
+  }
+
+  // 5. Carnes de Cerdo Premium (Categoría 2)
+  if (
+    product?.meatType === 'Cerdo' ||
+    name.includes('costilla de cerdo') ||
+    name.includes('bondiola') ||
+    name.includes('tocino') ||
+    name.includes('chuleta de cerdo')
+  ) {
+    return '2';
+  }
+
+  // 6. Café y Despensa Artesanal (Categoría 6)
+  if (
+    name.includes('café') ||
+    name.includes('cafe') ||
+    name.includes('panela') ||
+    name.includes('miel') ||
+    name.includes('fríjol') ||
+    name.includes('frijol') ||
+    name.includes('choclo') ||
+    name.includes('maíz') ||
+    name.includes('maiz')
+  ) {
+    return '6';
+  }
+
+  // 7. Productos Avícolas (Categoría 8)
+  if (
+    product?.meatType === 'Avicola' ||
+    name.includes('pollo') ||
+    name.includes('huevo') ||
+    name.includes('pechuga')
+  ) {
+    return '8';
+  }
+
+  // 8. Coincidencia en semillas locales
+  const match = INITIAL_BY_NAME.get(name);
+  if (match && match.categoryId) {
+    return String(match.categoryId);
+  }
+
+  if (VALID_CAT_IDS.has(String(product?.categoryId || product?.categoria))) {
+    return String(product.categoryId || product.categoria);
+  }
+
+  return '1';
+};
 
 /**
  * Normaliza un producto proveniente de MockAPI (/producto)
@@ -13,6 +137,7 @@ const normalizeProduct = (p) => {
   if (!p) return null;
   const stockNum = Number(p.stock !== undefined ? p.stock : 10);
   const img = p.imageUrl || p.image || p.imagen || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&auto=format&fit=crop&q=80';
+  const resolvedCategoryId = resolveCanonicalCategoryId(p);
 
   return {
     id: String(p.id),
@@ -23,7 +148,7 @@ const normalizeProduct = (p) => {
     stock: stockNum,
     imageUrl: img,
     image: img, // Compatibilidad
-    categoryId: String(p.categoryId || p.categoria || '1'),
+    categoryId: resolvedCategoryId,
     farmerId: String(p.farmerId || '1'),
     active: p.active !== undefined ? Boolean(p.active) : stockNum > 0,
     meatType: p.meatType || null,
@@ -89,6 +214,14 @@ class ProductService {
 
   _loadInitialCache() {
     try {
+      const version = localStorage.getItem(CACHE_VERSION_KEY);
+      if (version !== CURRENT_CACHE_VERSION) {
+        // Caché desactualizado: limpiar y usar INITIAL_PRODUCTS como base
+        localStorage.removeItem(LOCAL_STORAGE_PRODUCTS_KEY);
+        localStorage.setItem(CACHE_VERSION_KEY, CURRENT_CACHE_VERSION);
+        this._localCache = [...INITIAL_PRODUCTS];
+        return;
+      }
       const stored = localStorage.getItem(LOCAL_STORAGE_PRODUCTS_KEY);
       if (stored) {
         this._localCache = JSON.parse(stored);
@@ -102,6 +235,7 @@ class ProductService {
 
   _persistCache() {
     try {
+      localStorage.setItem(CACHE_VERSION_KEY, CURRENT_CACHE_VERSION);
       localStorage.setItem(LOCAL_STORAGE_PRODUCTS_KEY, JSON.stringify(this._localCache));
     } catch {
       // Ignorar
@@ -114,25 +248,44 @@ class ProductService {
       if (Array.isArray(data) && data.length > 0) {
         const normalized = data.map(normalizeProduct);
 
+        // Asignar a cada producto su categoría canónica exacta
+        const corrected = normalized.map(product => ({
+          ...product,
+          categoryId: resolveCanonicalCategoryId(product)
+        }));
+
         // Garantizar que las 3 líneas ganaderas (Cerdo, Res, Avícola)
         // estén siempre presentes en el catálogo
-        const hasBeef = normalized.some(p => p.meatType === 'Res' || (p.name || '').toLowerCase().includes('punta de anca'));
-        const hasPork = normalized.some(p => p.meatType === 'Cerdo' || (p.name || '').toLowerCase().includes('costilla de cerdo'));
-        const hasPoultry = normalized.some(p => p.meatType === 'Avicola' || (p.name || '').toLowerCase().includes('huevo') || (p.name || '').toLowerCase().includes('pollo'));
+        const hasBeef = corrected.some(p => p.meatType === 'Res' || (p.name || '').toLowerCase().includes('punta de anca'));
+        const hasPork = corrected.some(p => p.meatType === 'Cerdo' || (p.name || '').toLowerCase().includes('costilla de cerdo'));
+        const hasPoultry = corrected.some(p => p.meatType === 'Avicola' || (p.name || '').toLowerCase().includes('huevo') || (p.name || '').toLowerCase().includes('pollo'));
 
-        let combined = [...normalized];
+        let combined = [...corrected];
         if (!hasBeef || !hasPork || !hasPoultry) {
           const missingSpecialized = INITIAL_PRODUCTS.filter(ip => {
             const isSpecial = ip.meatType === 'Res' || ip.meatType === 'Cerdo' || ip.meatType === 'Avicola';
             if (!isSpecial) return false;
-            return !combined.some(cp => cp.name.toLowerCase() === ip.name.toLowerCase());
-          });
-          combined = [...missingSpecialized, ...combined];
+            return !combined.some(cp => cp.name.toLowerCase().trim() === ip.name.toLowerCase().trim());
+          }).map(ip => ({
+            ...ip,
+            id: `seed-${ip.id}`,
+            categoryId: resolveCanonicalCategoryId(ip)
+          }));
+          combined = [...combined, ...missingSpecialized];
         }
 
-        this._localCache = combined;
+        // Deduplicar: nunca retornar el mismo producto dos veces por nombre
+        const seenNames = new Set();
+        const deduped = combined.filter(p => {
+          const nameKey = (p.name || '').toLowerCase().trim();
+          if (seenNames.has(nameKey)) return false;
+          seenNames.add(nameKey);
+          return true;
+        });
+
+        this._localCache = deduped;
         this._persistCache();
-        return combined;
+        return deduped;
       }
       return this._localCache;
     } catch (error) {

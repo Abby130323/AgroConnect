@@ -25,18 +25,10 @@ class CategoryService {
   }
 
   async getAll() {
-    try {
-      const data = await httpClient.get(this.endpoint);
-      if (Array.isArray(data) && data.length > 0) {
-        const normalized = data.map(normalizeCategory);
-        this._localCache = normalized;
-        return normalized;
-      }
-      return this._localCache;
-    } catch (error) {
-      console.warn(`[CategoryService] Usando catálogo base para ${this.endpoint}:`, error.message);
-      return this._localCache;
-    }
+    // IMPORTANT: INITIAL_CATEGORIES es la fuente canónica de IDs para el filtrado.
+    // Los productos en INITIAL_PRODUCTS usan los IDs "1"–"9" de INITIAL_CATEGORIES.
+    // Usar categorías de MockAPI causa desajuste de IDs y rompe los filtros del catálogo.
+    return [...this._localCache];
   }
 
   async getById(id) {
