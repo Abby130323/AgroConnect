@@ -19,7 +19,7 @@ export const INITIAL_CATEGORIES = [
   },
   {
     id: "3",
-    name: "Frutas y Verduras de Temporada",
+    name: "Frutas de Temporada",
     description: "Cosechas frescas recolectadas en su punto óptimo de maduración natural.",
     iconKey: "fruits"
   },
@@ -317,7 +317,7 @@ export const INITIAL_PRODUCTS = [
   },
 
   // ==========================================
-  // FRUTAS Y VERDURAS DE TEMPORADA (Categoría ID: 3)
+  // FRUTAS DE TEMPORADA (Categoría ID: 3)
   // ==========================================
   {
     id: "10",
@@ -458,7 +458,7 @@ export const INITIAL_PRODUCTS = [
     stock: 90,
     imageUrl: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=800&auto=format&fit=crop&q=80",
-    categoryId: "5",
+    categoryId: "4",
     farmerId: "4",
     active: true,
     createdAt: "2026-09-03T09:00:00.000Z"
@@ -472,7 +472,7 @@ export const INITIAL_PRODUCTS = [
     stock: 75,
     imageUrl: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=800&auto=format&fit=crop&q=80",
-    categoryId: "5",
+    categoryId: "4",
     farmerId: "4",
     active: true,
     createdAt: "2026-09-04T15:00:00.000Z"
@@ -514,7 +514,7 @@ export const INITIAL_PRODUCTS = [
     stock: 85,
     imageUrl: "https://images.unsplash.com/photo-1580201092675-a0a6a6cafbb1?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1580201092675-a0a6a6cafbb1?w=800&auto=format&fit=crop&q=80",
-    categoryId: "5",
+    categoryId: "4",
     farmerId: "4",
     active: true,
     createdAt: "2026-09-07T10:15:00.000Z"

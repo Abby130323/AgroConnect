@@ -33,7 +33,7 @@ export const ProductCard = ({ product }) => {
         <div className="product-card-badges">
           {product.category && (
             <Badge variant="category" size="sm">
-              {typeof product.category === 'object' ? product.category.name : product.category}
+              {product.category.name}
             </Badge>
           )}
           {product.meatType && (

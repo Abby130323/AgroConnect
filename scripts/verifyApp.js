@@ -1,22 +1,22 @@
 import { INITIAL_CATEGORIES, INITIAL_FARMERS, INITIAL_PRODUCTS } from '../src/utils/seedData.js';
 import { formatCurrency, formatDate, isAvailable } from '../src/utils/formatters.js';
 import { INITIAL_USERS, USER_ROLES } from '../src/features/auth/models/userModel.js';
-import { 
-  canManageUsers, 
-  canManageProducts, 
-  canManageOrders, 
-  canManageInventory, 
-  canViewAdminPanel, 
-  canManageOwnProducts, 
+import {
+  canManageUsers,
+  canManageProducts,
+  canManageOrders,
+  canManageInventory,
+  canViewAdminPanel,
+  canManageOwnProducts,
   canBuy,
   hasPermission,
   isProductInUserDomain,
-  PERMISSIONS 
+  PERMISSIONS
 } from '../src/features/auth/utils/permissions.js';
-import { 
-  getPromotionProgress, 
-  calculateCartDiscount, 
-  calculateTotal 
+import {
+  getPromotionProgress,
+  calculateCartDiscount,
+  calculateTotal
 } from '../src/features/promotions/utils/promotionsCalculator.js';
 
 async function runTests() {
@@ -56,15 +56,15 @@ async function runTests() {
   // 2. MODELO DE DATOS OBLIGATORIO Y FOTOGRAFIAS REALES
   console.log('\n[2] Estandar del Modelo de Producto y Fotografias Reales');
   const requiredFields = ['id', 'name', 'description', 'price', 'stock', 'categoryId', 'farmerId', 'imageUrl', 'unit'];
-  
-  const allHaveRequiredFields = INITIAL_PRODUCTS.every(p => 
+
+  const allHaveRequiredFields = INITIAL_PRODUCTS.every(p =>
     requiredFields.every(field => p[field] !== undefined && p[field] !== null && p[field] !== '')
   );
   assert(allHaveRequiredFields, 'Todos los productos cumplen con los campos minimos obligatorios (incluyendo imageUrl y unit)');
 
   // Fotografias reales y no placeholders
-  const allValidPhotos = INITIAL_PRODUCTS.every(p => 
-    typeof p.imageUrl === 'string' && 
+  const allValidPhotos = INITIAL_PRODUCTS.every(p =>
+    typeof p.imageUrl === 'string' &&
     p.imageUrl.startsWith('https://images.unsplash.com/') &&
     !p.imageUrl.includes('placeholder') &&
     !p.imageUrl.includes('via.placeholder')
@@ -86,7 +86,7 @@ async function runTests() {
   assert(beefProducts.length >= 4, `Cortes especializados de Res registrados (${beefProducts.length} cortes)`);
   assert(porkProducts.length >= 3, `Cortes especializados de Cerdo registrados (${porkProducts.length} cortes)`);
 
-  const allMeatHaveSpecs = meatProducts.every(p => 
+  const allMeatHaveSpecs = meatProducts.every(p =>
     p.cut && p.presentation && p.conservation && p.meatType
   );
   assert(allMeatHaveSpecs, 'Todos los productos carnicos contienen ficha tecnica: cut, presentation, conservation y meatType');
@@ -213,14 +213,14 @@ async function runTests() {
   // 10. AUSENCIA TOTAL DE EMOJIS EN MODELOS DE DATOS
   console.log('\n[10] Verificacion de Ausencia de Emojis');
   const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}]/u;
-  
-  const noEmojisInProducts = INITIAL_PRODUCTS.every(p => 
+
+  const noEmojisInProducts = INITIAL_PRODUCTS.every(p =>
     !emojiRegex.test(p.name) && !emojiRegex.test(p.description) && (!p.cut || !emojiRegex.test(p.cut))
   );
-  const noEmojisInCategories = INITIAL_CATEGORIES.every(c => 
+  const noEmojisInCategories = INITIAL_CATEGORIES.every(c =>
     !emojiRegex.test(c.name) && !emojiRegex.test(c.description)
   );
-  const noEmojisInUsers = INITIAL_USERS.every(u => 
+  const noEmojisInUsers = INITIAL_USERS.every(u =>
     !emojiRegex.test(u.name) && !emojiRegex.test(u.title)
   );
 
@@ -264,7 +264,7 @@ async function runTests() {
   assert(!isProductInUserDomain(empPedidosUser, beefProduct), 'Empleado de pedidos NO tiene dominio de control sobre productos ganaderos');
 
   console.log('\n==========================================');
-  console.log(`RESULTADOS: ${passed} de ${total} pruebas aprobadas (${Math.round((passed/total)*100)}%)`);
+  console.log(`RESULTADOS: ${passed} de ${total} pruebas aprobadas (${Math.round((passed / total) * 100)}%)`);
   console.log('==========================================\n');
 
   if (passed === total) {
