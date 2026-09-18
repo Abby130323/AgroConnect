@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 @import './variables.css';
 
 /* Reset Moderno */
@@ -24,14 +24,17 @@ body {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Tipografía */
+/* Tipografía de Retail y Supermercado */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   color: var(--text-primary);
   line-height: 1.25;
   font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 h1 { font-size: var(--font-size-4xl); }
@@ -43,6 +46,7 @@ h5 { font-size: var(--font-size-lg); }
 p {
   margin-bottom: var(--space-3);
   color: var(--text-secondary);
+  line-height: 1.65;
 }
 
 a {
@@ -71,6 +75,15 @@ button {
   cursor: pointer;
   border: none;
   background: none;
+  touch-action: manipulation;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
 }
 
 code {
@@ -79,7 +92,7 @@ code {
   padding: 0.15rem 0.35rem;
   border-radius: var(--radius-sm);
   font-size: 0.875em;
-  color: var(--primary-600);
+  color: var(--primary-700);
 }
 
 /* Shell de la Aplicación */
@@ -131,7 +144,7 @@ code {
 
 .bg-surface { background-color: var(--bg-surface); }
 .bg-gradient-agro {
-  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
+  background: linear-gradient(135deg, var(--primary-700) 0%, var(--primary-900) 100%);
 }
 
 .line-clamp-1 {
@@ -141,7 +154,7 @@ code {
   overflow: hidden;
 }
 
-/* Animaciones */
+/* Animaciones y Microinteracciones */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
@@ -153,10 +166,10 @@ code {
 
 @keyframes pop {
   0% { transform: scale(0.8); }
-  50% { transform: scale(1.2); }
+  50% { transform: scale(1.15); }
   100% { transform: scale(1); }
 }
 
 .animate-badge {
-  animation: pop 0.3s ease-out;
+  animation: pop 0.25s ease-out;
 }

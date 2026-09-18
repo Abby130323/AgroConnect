@@ -17,13 +17,17 @@ export const ProductsPage = () => {
     filters,
   } = useAgroCatalog();
 
-  // Si viene con parámetro en URL (?category=2), seleccionarlo
+  // Si viene con parámetro en URL (?category=2 o ?search=palabra), seleccionarlo
   useEffect(() => {
     const categoryParam = searchParams.get('category');
     if (categoryParam) {
       filters.setSelectedCategory(categoryParam);
     }
-  }, [searchParams, filters.setSelectedCategory]);
+    const searchParam = searchParams.get('search');
+    if (searchParam !== null) {
+      filters.setSearchTerm(searchParam);
+    }
+  }, [searchParams, filters.setSelectedCategory, filters.setSearchTerm]);
 
   return (
     <div className="products-page py-4">

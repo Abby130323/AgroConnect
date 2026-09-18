@@ -13,7 +13,11 @@ import {
   Carrot, 
   Package, 
   Coffee,
-  Beef
+  Beef,
+  Truck,
+  Store,
+  ThermometerSnowflake,
+  Sparkles
 } from 'lucide-react';
 import useAgroCatalog from '../../features/products/hooks/useAgroCatalog';
 import ProductCard from '../../features/products/components/ProductCard';
@@ -47,39 +51,39 @@ export const HomePage = () => {
   const getCategoryIcon = (iconKey) => {
     switch (iconKey) {
       case 'beef':
-        return <Beef size={28} className="text-primary" />;
+        return <Beef size={28} className="category-icon-svg" />;
       case 'pork':
-        return <UtensilsCrossed size={28} className="text-primary" />;
+        return <UtensilsCrossed size={28} className="category-icon-svg" />;
       case 'fruits':
-        return <Apple size={28} className="text-primary" />;
+        return <Apple size={28} className="category-icon-svg" />;
       case 'vegetables':
-        return <Carrot size={28} className="text-primary" />;
+        return <Carrot size={28} className="category-icon-svg" />;
       case 'tubers':
-        return <Package size={28} className="text-primary" />;
+        return <Package size={28} className="category-icon-svg" />;
       case 'pantry':
       case 'coffee':
-        return <Coffee size={28} className="text-primary" />;
+        return <Coffee size={28} className="category-icon-svg" />;
       default:
-        return <CheckCircle2 size={28} className="text-primary" />;
+        return <CheckCircle2 size={28} className="category-icon-svg" />;
     }
   };
 
   return (
     <div className="home-page">
-      {/* Hero Section */}
+      {/* 1. Hero Principal de Supermercado Agroalimentario */}
       <section className="hero-section">
         <div className="container hero-container">
           <div className="hero-content">
             <div className="hero-badge-wrapper">
-              <ShieldCheck size={16} />
-              <span>Comercio Directo y Alimentos 100% Frescos</span>
+              <ShieldCheck size={16} className="hero-badge-icon" />
+              <span>Alimentos Seleccionados Directos del Productor</span>
             </div>
             <h1 className="hero-title">
               Cortes Selectos y <span className="text-highlight">Cosechas del Campo</span> en tu Hogar
             </h1>
             <p className="hero-subtitle">
-              Compra carne de res madurada, carne de cerdo premium, frutas, hortalizas y café
-              directamente a productores del campo colombiano, con trazabilidad garantizada.
+              Abastécete con carne de res madurada, cortes porcinos, aves, frutas y hortalizas 
+              frescas, con trazabilidad desde las fincas de familias campesinas y ganaderos.
             </p>
 
             <div className="hero-cta-group">
@@ -87,24 +91,24 @@ export const HomePage = () => {
                 <span>Explorar Catálogo</span>
                 <ArrowRight size={18} />
               </Link>
-              <Link to="/admin/products" className="btn btn-outline-secondary btn-lg">
-                <Settings size={18} />
-                <span>Panel Administrativo</span>
+              <Link to="/login" className="btn btn-outline-secondary btn-lg">
+                <span>Acceso a Productores</span>
               </Link>
             </div>
 
+            {/* Métricas Dinámicas del Negocio */}
             <div className="hero-stats">
               <div className="hero-stat-item">
-                <span className="stat-number">30+</span>
+                <span className="stat-number">{products.length || 30}+</span>
                 <span className="stat-label">Cortes y Cosechas</span>
               </div>
               <div className="hero-stat-item">
-                <span className="stat-number">100%</span>
-                <span className="stat-label">Fotografías Reales</span>
+                <span className="stat-number">{categories.length || 6}</span>
+                <span className="stat-label">Departamentos</span>
               </div>
               <div className="hero-stat-item">
-                <span className="stat-number">REST</span>
-                <span className="stat-label">Arquitectura por Capas</span>
+                <span className="stat-number">{farmers.length || 6}</span>
+                <span className="stat-label">Fincas Vinculadas</span>
               </div>
             </div>
           </div>
@@ -113,15 +117,15 @@ export const HomePage = () => {
             <div className="hero-image-card">
               <img
                 src="https://images.unsplash.com/photo-1558030006-450675393462?w=800&auto=format&fit=crop&q=80"
-                alt="Selección de alimentos frescos y cortes comerciales del campo"
+                alt="Selección de alimentos frescos y carnes seleccionadas del campo"
                 className="hero-main-img"
               />
               <div className="hero-floating-badge">
                 <div className="floating-icon-box">
-                  <Award size={22} className="text-primary" />
+                  <Award size={22} />
                 </div>
                 <div>
-                  <strong>Origen Certificado</strong>
+                  <strong>Origen de Finca</strong>
                   <small>Directo desde el predio productor</small>
                 </div>
               </div>
@@ -130,7 +134,7 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* Banner Promocional Dinámico */}
+      {/* 2. Banner Promocional Dinámico */}
       {activePromotion && (
         <div className="container my-4">
           <PromotionBanner promotion={activePromotion} />
@@ -140,13 +144,13 @@ export const HomePage = () => {
       {/* Modal Publicitario Emergente */}
       <PromotionalModal promotion={activePromotion} />
 
-      {/* Categorías del Campo */}
+      {/* 3. Pasillos y Categorías del Campo */}
       <section className="categories-section py-5">
         <div className="container">
           <div className="section-header text-center">
-            <span className="section-eyebrow">Líneas de Producción</span>
+            <span className="section-eyebrow">Departamentos del Mercado</span>
             <h2 className="section-title">Explora por Categorías</h2>
-            <p className="section-desc">Selecciona el tipo de alimento o corte que deseas llevar a tu mesa.</p>
+            <p className="section-desc">Selecciona el tipo de alimento o corte especializado para tu mesa.</p>
           </div>
 
           <div className="categories-grid">
@@ -164,19 +168,19 @@ export const HomePage = () => {
                 </div>
                 <h3 className="category-name">{cat.name}</h3>
                 <p className="category-desc">{cat.description}</p>
-                <span className="category-link">Ver catálogo →</span>
+                <span className="category-link">Ver pasillo →</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Productos Destacados */}
+      {/* 4. Productos Destacados */}
       <section className="featured-section py-5 bg-surface">
         <div className="container">
           <div className="section-header-flex">
             <div>
-              <span className="section-eyebrow">Selección Especial</span>
+              <span className="section-eyebrow">Selección del Día</span>
               <h2 className="section-title">Cortes y Productos Destacados</h2>
             </div>
             <Link to="/products" className="btn btn-outline-primary">
@@ -186,7 +190,7 @@ export const HomePage = () => {
           </div>
 
           {loading ? (
-            <LoadingState message="Cargando catálogo destacado..." count={8} />
+            <LoadingState message="Cargando productos destacados del campo..." count={8} />
           ) : error ? (
             <ErrorState error={error} onRetry={reload} />
           ) : (
@@ -199,14 +203,14 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* Directorio de Productores */}
+      {/* 5. Directorio de Productores y Trazabilidad */}
       <section className="farmers-section py-5">
         <div className="container">
           <div className="section-header text-center">
-            <span className="section-eyebrow">Trazabilidad</span>
-            <h2 className="section-title">Productores y Familias Campesinas</h2>
+            <span className="section-eyebrow">Trazabilidad Rural</span>
+            <h2 className="section-title">Familias Campesinas y Ganaderos</h2>
             <p className="section-desc">
-              Conoce el origen y las fincas responsables de cada alimento comercializado.
+              Conoce el origen, las fincas y las manos responsables de cada producto.
             </p>
           </div>
 
@@ -237,40 +241,56 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* Explicación Didáctica de Arquitectura */}
-      <section className="architecture-banner py-5 bg-gradient-agro">
-        <div className="container text-center text-white">
-          <span className="arch-pill">Arquitectura por Capas Desacoplada</span>
-          <h2 className="arch-title">Flujo de Comunicación REST en AgroConnect</h2>
-          <div className="arch-flow-diagram">
-            <div className="flow-step">
-              <span className="flow-num">1</span>
-              <strong>React UI</strong>
-              <small>Componentes de presentación</small>
+      {/* 6. Compromiso de Calidad y Logística AgroConnect */}
+      <section className="assurance-section py-5 bg-gradient-agro">
+        <div className="container">
+          <div className="text-center text-white mb-4">
+            <span className="assurance-pill">Compromiso AgroConnect</span>
+            <h2 className="assurance-title">Abastecimiento Directo y Calidad en Origen</h2>
+            <p className="assurance-subtitle">
+              Conectamos la producción rural colombiana con los hogares a través de procesos organizados y eficientes.
+            </p>
+          </div>
+
+          <div className="assurance-grid">
+            <div className="assurance-card">
+              <div className="assurance-icon-box">
+                <Store size={26} />
+              </div>
+              <h3 className="assurance-card-title">Origen de Finca Verificado</h3>
+              <p className="assurance-card-desc">
+                Cada alimento proviene de ganaderos y familias campesinas registradas, respaldando la economía del campo.
+              </p>
             </div>
-            <span className="flow-arrow">→</span>
-            <div className="flow-step">
-              <span className="flow-num">2</span>
-              <strong>Custom Hooks</strong>
-              <small>useAgroCatalog / useCart</small>
+
+            <div className="assurance-card">
+              <div className="assurance-icon-box">
+                <ThermometerSnowflake size={26} />
+              </div>
+              <h3 className="assurance-card-title">Conservación Adecuada</h3>
+              <p className="assurance-card-desc">
+                Cuidado de la temperatura para cortes cárnicos y manejo fresco para frutas y hortalizas de huerta.
+              </p>
             </div>
-            <span className="flow-arrow">→</span>
-            <div className="flow-step">
-              <span className="flow-num">3</span>
-              <strong>Services</strong>
-              <small>productService / categoryService</small>
+
+            <div className="assurance-card">
+              <div className="assurance-icon-box">
+                <ShieldCheck size={26} />
+              </div>
+              <h3 className="assurance-card-title">Pesaje y Trazabilidad</h3>
+              <p className="assurance-card-desc">
+                Porciones y pesos exactos según la presentación requerida, garantizando transparencia en cada pedido.
+              </p>
             </div>
-            <span className="flow-arrow">→</span>
-            <div className="flow-step">
-              <span className="flow-num">4</span>
-              <strong>HTTP Client</strong>
-              <small>fetch centralizado</small>
-            </div>
-            <span className="flow-arrow">→</span>
-            <div className="flow-step">
-              <span className="flow-num">5</span>
-              <strong>MockAPI REST</strong>
-              <small>Endpoints JSON</small>
+
+            <div className="assurance-card">
+              <div className="assurance-icon-box">
+                <Truck size={26} />
+              </div>
+              <h3 className="assurance-card-title">Logística y Despacho</h3>
+              <p className="assurance-card-desc">
+                Coordinación de traslados desde los predios rurales hasta tu dirección con operadores dedicados.
+              </p>
             </div>
           </div>
         </div>
