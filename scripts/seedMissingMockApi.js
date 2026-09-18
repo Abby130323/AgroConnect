@@ -1,5 +1,9 @@
-import { INITIAL_CATEGORIES, INITIAL_FARMERS, INITIAL_PRODUCTS } from '../src/utils/seedData.js';
-import { INITIAL_USERS } from '../src/features/auth/models/userModel.js';
+/**
+ * Script de siembra para los endpoints que se encontraban en amarillo (con 0 datos):
+ * 1. /estado_orden (Catálogo oficial de estados de órdenes)
+ * 2. /information (Información institucional, sedes y metadatos de la plataforma)
+ * 3. /orden (Órdenes reales vinculadas a usuarios, productos y clientes)
+ */
 
 const BASE_URL = 'https://6aa6bb5ad7765db985078f3b.mockapi.io';
 
@@ -429,235 +433,66 @@ const SEED_ORDERS = [
   }
 ];
 
-async function seed() {
-  console.log('🌱 Iniciando siembra completa en MockAPI:', BASE_URL);
-
-  // 1. Categorías (/categoria)
-  console.log('\n📦 Verificando y sembrando categorías en /categoria...');
-  const catRes = await fetch(`${BASE_URL}/categoria`).catch(() => null);
-  const existingCats = catRes && catRes.ok ? await catRes.json() : [];
-
-  if (existingCats.length === 0) {
-    for (const cat of INITIAL_CATEGORIES) {
-      try {
-        const payload = {
-          nombre: cat.name,
-          name: cat.name,
-          descripcion: cat.description,
-          description: cat.description,
-          iconKey: cat.iconKey,
-          estado: true,
-        };
-        const res = await fetch(`${BASE_URL}/categoria`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        console.log(`  ✓ Creada categoría: "${data.nombre || data.name}" (ID: ${data.id})`);
-      } catch (e) {
-        console.error(`  ✗ Error en /categoria "${cat.name}":`, e.message);
-      }
+async function seedEndpoint(endpoint, dataList, nameKey = 'nombre') {
+  console.log(`\n🌱 Sembrando endpoint [/${endpoint}]...`);
+  
+  // 1. Consultar registros existentes
+  let existing = [];
+  try {
+    const res = await fetch(`${BASE_URL}/${endpoint}`);
+    if (res.ok) {
+      existing = await res.json();
     }
-  } else {
-    console.log(`  ℹ Ya existen ${existingCats.length} categorías en /categoria.`);
+  } catch (e) {
+    console.error(`  ✗ Error al consultar [/${endpoint}]:`, e.message);
   }
 
-  // 2. Agricultores (/cliente)
-  console.log('\n👨‍🌾 Verificando y sembrando agricultores en /cliente...');
-  const farmRes = await fetch(`${BASE_URL}/cliente`).catch(() => null);
-  const existingFarmers = farmRes && farmRes.ok ? await farmRes.json() : [];
-
-  if (existingFarmers.length === 0) {
-    for (const farmer of INITIAL_FARMERS) {
-      try {
-        const payload = {
-          nombre: farmer.name,
-          name: farmer.name,
-          apellido: farmer.farmName,
-          farmName: farmer.farmName,
-          direccion: farmer.location,
-          location: farmer.location,
-          telefono: farmer.phone,
-          phone: farmer.phone,
-          correo: farmer.email,
-          email: farmer.email,
-          avatar: farmer.avatar,
-          estado: true,
-        };
-        const res = await fetch(`${BASE_URL}/cliente`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        console.log(`  ✓ Creado agricultor: "${data.nombre || data.name}" (ID: ${data.id})`);
-      } catch (e) {
-        console.error(`  ✗ Error en /cliente "${farmer.name}":`, e.message);
-      }
-    }
-  } else {
-    console.log(`  ℹ Ya existen ${existingFarmers.length} agricultores en /cliente.`);
+  if (Array.isArray(existing) && existing.length > 0) {
+    console.log(`  ℹ Ya existen ${existing.length} registros en [/${endpoint}]. No se sobreescribirá.`);
+    return existing.length;
   }
 
-  // 3. Productos (/producto)
-  console.log('\n🌾 Verificando y sembrando productos en /producto...');
-  const prodRes = await fetch(`${BASE_URL}/producto`).catch(() => null);
-  const existingProducts = prodRes && prodRes.ok ? await prodRes.json() : [];
-
-  if (existingProducts.length < INITIAL_PRODUCTS.length) {
-    const existingNames = new Set(existingProducts.map(p => (p.nombre || p.name || '').toLowerCase()));
-    for (const prod of INITIAL_PRODUCTS) {
-      if (existingNames.has(prod.name.toLowerCase())) continue;
-
-      try {
-        const payload = {
-          nombre: prod.name,
-          name: prod.name,
-          descripcion: prod.description,
-          description: prod.description,
-          precio: prod.price,
-          price: prod.price,
-          stock: prod.stock,
-          unit: prod.unit,
-          imagen: prod.image,
-          image: prod.image,
-          categoria: prod.categoryId,
-          categoryId: prod.categoryId,
-          farmerId: prod.farmerId,
-          estado: prod.stock > 0,
-          createdAt: prod.createdAt,
-          meatType: prod.meatType || undefined,
-          cut: prod.cut || undefined,
-        };
-        const res = await fetch(`${BASE_URL}/producto`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        console.log(`  ✓ Creado producto: "${data.nombre || data.name}" (ID: ${data.id})`);
-      } catch (e) {
-        console.error(`  ✗ Error en /producto "${prod.name}":`, e.message);
+  // 2. Insertar registros
+  let createdCount = 0;
+  for (const item of dataList) {
+    try {
+      const res = await fetch(`${BASE_URL}/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+      });
+      if (res.ok) {
+        const created = await res.json();
+        createdCount++;
+        const label = created[nameKey] || created.name || created.cliente || created.codigo || created.id;
+        console.log(`  ✓ Creado registro #${created.id} en /${endpoint}: "${label}"`);
+      } else {
+        console.error(`  ✗ Error HTTP ${res.status} al crear en /${endpoint}:`, await res.text());
       }
+    } catch (e) {
+      console.error(`  ✗ Excepción al crear en /${endpoint}:`, e.message);
     }
-  } else {
-    console.log(`  ℹ Ya existen ${existingProducts.length} productos en /producto.`);
   }
 
-  // 4. Usuarios (/usuario)
-  console.log('\n👥 Verificando y sembrando usuarios en /usuario...');
-  const userRes = await fetch(`${BASE_URL}/usuario`).catch(() => null);
-  const existingUsers = userRes && userRes.ok ? await userRes.json() : [];
-
-  if (existingUsers.length < INITIAL_USERS.length) {
-    const existingEmails = new Set(existingUsers.map(u => (u.email || u.correo || '').toLowerCase()));
-    for (const u of INITIAL_USERS) {
-      if (existingEmails.has(u.email.toLowerCase())) continue;
-
-      try {
-        const payload = {
-          name: u.name,
-          nombre: u.name,
-          email: u.email,
-          correo: u.email,
-          password: u.password,
-          clave: u.password,
-          role: u.role,
-          active: u.active,
-          estado: u.active,
-          avatar: u.avatar,
-          title: u.title,
-          farmerId: u.farmerId || null,
-          city: u.city || '',
-          address: u.address || '',
-          phone: u.phone || '',
-        };
-        const res = await fetch(`${BASE_URL}/usuario`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        console.log(`  ✓ Creado usuario: "${data.name || data.nombre}" (ID: ${data.id})`);
-      } catch (e) {
-        console.error(`  ✗ Error en /usuario "${u.name}":`, e.message);
-      }
-    }
-  } else {
-    console.log(`  ℹ Ya existen ${existingUsers.length} usuarios en /usuario.`);
-  }
-
-  // 5. Estados de Orden (/estado_orden)
-  console.log('\n🏷️ Verificando y sembrando estados de orden en /estado_orden...');
-  const estadoRes = await fetch(`${BASE_URL}/estado_orden`).catch(() => null);
-  const existingEstados = estadoRes && estadoRes.ok ? await estadoRes.json() : [];
-
-  if (existingEstados.length === 0) {
-    for (const est of SEED_ESTADO_ORDEN) {
-      try {
-        const res = await fetch(`${BASE_URL}/estado_orden`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(est),
-        });
-        const data = await res.json();
-        console.log(`  ✓ Creado estado: "${data.nombre || data.name}" (ID: ${data.id})`);
-      } catch (e) {
-        console.error(`  ✗ Error en /estado_orden "${est.nombre}":`, e.message);
-      }
-    }
-  } else {
-    console.log(`  ℹ Ya existen ${existingEstados.length} estados en /estado_orden.`);
-  }
-
-  // 6. Información Institucional y Sedes (/information)
-  console.log('\nℹ️ Verificando y sembrando información institucional en /information...');
-  const infoRes = await fetch(`${BASE_URL}/information`).catch(() => null);
-  const existingInfo = infoRes && infoRes.ok ? await infoRes.json() : [];
-
-  if (existingInfo.length === 0) {
-    for (const info of SEED_INFORMATION) {
-      try {
-        const res = await fetch(`${BASE_URL}/information`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(info),
-        });
-        const data = await res.json();
-        console.log(`  ✓ Creada información: "${data.nombre || data.name}" (ID: ${data.id})`);
-      } catch (e) {
-        console.error(`  ✗ Error en /information "${info.nombre}":`, e.message);
-      }
-    }
-  } else {
-    console.log(`  ℹ Ya existen ${existingInfo.length} registros en /information.`);
-  }
-
-  // 7. Órdenes (/orden)
-  console.log('\n🛒 Verificando y sembrando órdenes en /orden...');
-  const ordenRes = await fetch(`${BASE_URL}/orden`).catch(() => null);
-  const existingOrders = ordenRes && ordenRes.ok ? await ordenRes.json() : [];
-
-  if (existingOrders.length === 0) {
-    for (const ord of SEED_ORDERS) {
-      try {
-        const res = await fetch(`${BASE_URL}/orden`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(ord),
-        });
-        const data = await res.json();
-        console.log(`  ✓ Creada orden: #${data.id} - ${data.cliente || data.customerName} ($${data.total})`);
-      } catch (e) {
-        console.error(`  ✗ Error en /orden:`, e.message);
-      }
-    }
-  } else {
-    console.log(`  ℹ Ya existen ${existingOrders.length} órdenes en /orden.`);
-  }
-
-  console.log('\n✨ ¡Proceso de siembra completa en MockAPI finalizado con éxito!');
+  return createdCount;
 }
 
-seed();
+async function run() {
+  console.log('======================================================');
+  console.log('🌾 POBLANDO ENDPOINTS FALTANTES EN MOCKAPI (AgroConnect)');
+  console.log('URL Base:', BASE_URL);
+  console.log('======================================================');
+
+  const countEstados = await seedEndpoint('estado_orden', SEED_ESTADO_ORDEN, 'nombre');
+  const countInfo = await seedEndpoint('information', SEED_INFORMATION, 'nombre');
+  const countOrdenes = await seedEndpoint('orden', SEED_ORDERS, 'cliente');
+
+  console.log('\n======================================================');
+  console.log('🎉 RESUMEN DE SIEMBRA COMPLETADA:');
+  console.log(`  • /estado_orden : ${countEstados} registros sembrados`);
+  console.log(`  • /information  : ${countInfo} registros sembrados`);
+  console.log(`  • /orden        : ${countOrdenes} registros sembrados`);
+  console.log('======================================================\n');
+}
+
+run();

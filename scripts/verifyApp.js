@@ -1,22 +1,22 @@
 import { INITIAL_CATEGORIES, INITIAL_FARMERS, INITIAL_PRODUCTS } from '../src/utils/seedData.js';
 import { formatCurrency, formatDate, isAvailable } from '../src/utils/formatters.js';
 import { INITIAL_USERS, USER_ROLES } from '../src/features/auth/models/userModel.js';
-import { 
-  canManageUsers, 
-  canManageProducts, 
-  canManageOrders, 
-  canManageInventory, 
-  canViewAdminPanel, 
-  canManageOwnProducts, 
+import {
+  canManageUsers,
+  canManageProducts,
+  canManageOrders,
+  canManageInventory,
+  canViewAdminPanel,
+  canManageOwnProducts,
   canBuy,
   hasPermission,
   isProductInUserDomain,
-  PERMISSIONS 
+  PERMISSIONS
 } from '../src/features/auth/utils/permissions.js';
-import { 
-  getPromotionProgress, 
-  calculateCartDiscount, 
-  calculateTotal 
+import {
+  getPromotionProgress,
+  calculateCartDiscount,
+  calculateTotal
 } from '../src/features/promotions/utils/promotionsCalculator.js';
 
 async function runTests() {
@@ -56,15 +56,15 @@ async function runTests() {
   // 2. MODELO DE DATOS OBLIGATORIO Y FOTOGRAFIAS REALES
   console.log('\n[2] Estandar del Modelo de Producto y Fotografias Reales');
   const requiredFields = ['id', 'name', 'description', 'price', 'stock', 'categoryId', 'farmerId', 'imageUrl', 'unit'];
-  
-  const allHaveRequiredFields = INITIAL_PRODUCTS.every(p => 
+
+  const allHaveRequiredFields = INITIAL_PRODUCTS.every(p =>
     requiredFields.every(field => p[field] !== undefined && p[field] !== null && p[field] !== '')
   );
   assert(allHaveRequiredFields, 'Todos los productos cumplen con los campos minimos obligatorios (incluyendo imageUrl y unit)');
 
   // Fotografias reales y no placeholders
-  const allValidPhotos = INITIAL_PRODUCTS.every(p => 
-    typeof p.imageUrl === 'string' && 
+  const allValidPhotos = INITIAL_PRODUCTS.every(p =>
+    typeof p.imageUrl === 'string' &&
     p.imageUrl.startsWith('https://images.unsplash.com/') &&
     !p.imageUrl.includes('placeholder') &&
     !p.imageUrl.includes('via.placeholder')
@@ -86,7 +86,7 @@ async function runTests() {
   assert(beefProducts.length >= 4, `Cortes especializados de Res registrados (${beefProducts.length} cortes)`);
   assert(porkProducts.length >= 3, `Cortes especializados de Cerdo registrados (${porkProducts.length} cortes)`);
 
-  const allMeatHaveSpecs = meatProducts.every(p => 
+  const allMeatHaveSpecs = meatProducts.every(p =>
     p.cut && p.presentation && p.conservation && p.meatType
   );
   assert(allMeatHaveSpecs, 'Todos los productos carnicos contienen ficha tecnica: cut, presentation, conservation y meatType');
@@ -144,9 +144,9 @@ async function runTests() {
   assert(totalUnits === 3, `Unidades totales en carrito calculadas correctamente (${totalUnits} uds)`);
   assert(subtotal === productToAdd.price * 3, `Subtotal liquidado correctamente (${formatCurrency(subtotal)})`);
 
-  // 7. AUTENTICACION Y 10 ROLES DEMO
-  console.log('\n[7] Verificacion de los 10 Roles de Usuario Predefinidos');
-  assert(INITIAL_USERS.length === 10, 'Existen exactamente 10 cuentas de usuario predefinidas');
+  // 7. AUTENTICACION Y 11 ROLES DEMO
+  console.log('\n[7] Verificacion de los 11 Roles de Usuario Predefinidos');
+  assert(INITIAL_USERS.length === 11, 'Existen exactamente 11 cuentas de usuario predefinidas');
 
   const admin = INITIAL_USERS.find(u => u.email === 'admin@agroconnect.com');
   const cliente1 = INITIAL_USERS.find(u => u.email === 'cliente1@agroconnect.com');
@@ -158,6 +158,7 @@ async function runTests() {
   const ganPorcino = INITIAL_USERS.find(u => u.email === 'porcino@agroconnect.com');
   const ganBovino = INITIAL_USERS.find(u => u.email === 'bovino@agroconnect.com');
   const ganAvicola = INITIAL_USERS.find(u => u.email === 'avicola@agroconnect.com');
+  const agricultor = INITIAL_USERS.find(u => u.email === 'agricultor@agroconnect.com');
 
   assert(admin && admin.role === USER_ROLES.ADMIN, 'Cuenta Administrador validada (admin@agroconnect.com)');
   assert(cliente1 && cliente2 && cliente3, '3 Cuentas de Cliente validadas (cliente1, cliente2, cliente3)');
@@ -167,6 +168,7 @@ async function runTests() {
   assert(ganPorcino && ganPorcino.role === USER_ROLES.GANADERO_PORCINO, 'Ganadero Porcino validado (porcino@agroconnect.com)');
   assert(ganBovino && ganBovino.role === USER_ROLES.GANADERO_BOVINO, 'Ganadero Bovino validado (bovino@agroconnect.com)');
   assert(ganAvicola && ganAvicola.role === USER_ROLES.GANADERO_AVICOLA, 'Ganadero Avicola validado (avicola@agroconnect.com)');
+  assert(agricultor && agricultor.role === USER_ROLES.AGRICULTOR, 'Agricultor validado (agricultor@agroconnect.com)');
 
   // 8. MATRIZ DE PERMISOS (RBAC)
   console.log('\n[8] Evaluacion de la Matriz de Permisos (RBAC)');
@@ -213,14 +215,14 @@ async function runTests() {
   // 10. AUSENCIA TOTAL DE EMOJIS EN MODELOS DE DATOS
   console.log('\n[10] Verificacion de Ausencia de Emojis');
   const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}]/u;
-  
-  const noEmojisInProducts = INITIAL_PRODUCTS.every(p => 
+
+  const noEmojisInProducts = INITIAL_PRODUCTS.every(p =>
     !emojiRegex.test(p.name) && !emojiRegex.test(p.description) && (!p.cut || !emojiRegex.test(p.cut))
   );
-  const noEmojisInCategories = INITIAL_CATEGORIES.every(c => 
+  const noEmojisInCategories = INITIAL_CATEGORIES.every(c =>
     !emojiRegex.test(c.name) && !emojiRegex.test(c.description)
   );
-  const noEmojisInUsers = INITIAL_USERS.every(u => 
+  const noEmojisInUsers = INITIAL_USERS.every(u =>
     !emojiRegex.test(u.name) && !emojiRegex.test(u.title)
   );
 
@@ -259,12 +261,22 @@ async function runTests() {
   assert(!isProductInUserDomain(avicolaUser, beefProduct), 'Ganadero Avicola NO tiene acceso a corte de res (NO MAS)');
   assert(!isProductInUserDomain(avicolaUser, fruitProduct), 'Ganadero Avicola NO tiene acceso a productos agricolas (NO MAS)');
 
-  // Clientes y Empleados de logística NO tienen dominio sobre paneles ganaderos
+  // Agricultor: TODO frutas, verduras, hortalizas, tubérculos; NADA de res, cerdo o pollo
+  assert(isProductInUserDomain(agricultor, fruitProduct), 'Agricultor tiene control sobre frutas y productos agricolas');
+  assert(!isProductInUserDomain(agricultor, porkProduct), 'Agricultor NO tiene acceso a cortes de cerdo (NO MAS)');
+  assert(!isProductInUserDomain(agricultor, beefProduct), 'Agricultor NO tiene acceso a cortes de res (NO MAS)');
+  assert(!isProductInUserDomain(agricultor, poultryProduct), 'Agricultor NO tiene acceso a carne de pollo/huevos (NO MAS)');
+
+  // Clientes y Empleados de logística NO tienen dominio sobre paneles de productores
   assert(!isProductInUserDomain(clienteUser, porkProduct), 'Cliente NO tiene dominio de control sobre productos ganaderos');
+  assert(!isProductInUserDomain(clienteUser, fruitProduct), 'Cliente NO tiene dominio de control sobre productos agricolas');
   assert(!isProductInUserDomain(empPedidosUser, beefProduct), 'Empleado de pedidos NO tiene dominio de control sobre productos ganaderos');
 
+  // Pero el Cliente SI puede comprar todos los productos en el catálogo público
+  assert(canBuy(clienteUser) === true, 'Cliente tiene autorización de compra en el catálogo público');
+
   console.log('\n==========================================');
-  console.log(`RESULTADOS: ${passed} de ${total} pruebas aprobadas (${Math.round((passed/total)*100)}%)`);
+  console.log(`RESULTADOS: ${passed} de ${total} pruebas aprobadas (${Math.round((passed / total) * 100)}%)`);
   console.log('==========================================\n');
 
   if (passed === total) {

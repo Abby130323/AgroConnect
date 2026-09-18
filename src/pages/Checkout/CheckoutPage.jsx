@@ -8,6 +8,7 @@ import { ShoppingBag, MapPin, CheckCircle2, ArrowLeft, Tag, ShieldCheck } from '
 import { useCart } from '../../features/cart/hooks/useCart.js';
 import { useAuth } from '../../features/auth/hooks/useAuth.js';
 import orderService from '../../features/orders/services/orderService.js';
+import productService from '../../services/products/productService.js';
 import { formatCurrency } from '../../utils/formatters.js';
 import Modal from '../../components/common/Modal.jsx';
 
@@ -102,6 +103,19 @@ export const CheckoutPage = () => {
       // Registro real en MockAPI /orden
       const savedOrder = await orderService.create(orderPayload);
       
+      // Actualización de inventario en tiempo real en MockAPI (/producto)
+      for (const item of items) {
+        try {
+          const prod = await productService.getById(item.productId || item.id);
+          if (prod && typeof prod.stock === 'number') {
+            const newStock = Math.max(0, prod.stock - item.quantity);
+            await productService.update(prod.id, { ...prod, stock: newStock });
+          }
+        } catch (stockErr) {
+          console.warn('[Checkout] Fallo al sincronizar stock en MockAPI:', stockErr.message);
+        }
+      }
+
       setConfirmedOrder(savedOrder);
       clearCart();
       toast.success('¡Pedido registrado con éxito en MockAPI!', {

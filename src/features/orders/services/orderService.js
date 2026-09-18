@@ -29,12 +29,14 @@ const normalizeOrder = (order) => {
     customerPhone: order.customerPhone || order.telefono || '',
     shippingAddress: order.shippingAddress || order.direccion || 'Dirección de entrega',
     city: order.city || order.ciudad || 'Medellín',
-    items: Array.isArray(order.items) ? order.items : [],
+    items: Array.isArray(order.items) && order.items.length > 0 
+      ? order.items 
+      : (Array.isArray(order.detalle) ? order.detalle : []),
     subtotal: Number(order.subtotal) || 0,
-    discount: Number(order.discount) || 0,
+    discount: Number(order.discount !== undefined ? order.discount : (order.descuento || 0)),
     total: Number(order.total) || 0,
     status: order.status || order.estado_orden || ORDER_STATUS.PENDIENTE,
-    createdAt: order.createdAt || new Date().toISOString(),
+    createdAt: order.createdAt || order.fecha || new Date().toISOString(),
     notes: order.notes || '',
   };
 };
@@ -66,12 +68,17 @@ export const orderService = {
       shippingAddress: orderData.shippingAddress,
       city: orderData.city,
       items: orderData.items,
+      detalle: orderData.items || [],
       subtotal: Number(orderData.subtotal),
       discount: Number(orderData.discount || 0),
+      descuento: Number(orderData.discount || 0),
       total: Number(orderData.total),
+      metodo_pago: orderData.paymentMethod || 'PSE',
+      paymentMethod: orderData.paymentMethod || 'PSE',
       status: orderData.status || ORDER_STATUS.PENDIENTE,
       estado_orden: orderData.status || ORDER_STATUS.PENDIENTE,
       createdAt: orderData.createdAt || new Date().toISOString(),
+      fecha: orderData.createdAt || new Date().toISOString(),
       notes: orderData.notes || '',
     };
     const created = await httpClient.post(API_ENDPOINTS.ORDERS, payload);

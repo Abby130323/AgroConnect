@@ -8,6 +8,7 @@ import {
   Users, 
   Beef, 
   Egg,
+  Sprout,
   Tag, 
   ShieldCheck, 
   ArrowRight,
@@ -117,12 +118,13 @@ export const DashboardPage = () => {
   // --- FILTRADO DE DATOS ESTRICTO SEGÚN ROL Y PRINCIPIO DE MÍNIMO PRIVILEGIO ---
   const userRole = user?.role || USER_ROLES.CLIENTE;
 
-  // 1. Productos permitidos (Estricta separación de dominio: NO MÁS)
+  // 1. Productos permitidos (Estricta separación de dominio)
   let specializedProducts = [];
   if (
     userRole === USER_ROLES.GANADERO_PORCINO ||
     userRole === USER_ROLES.GANADERO_BOVINO ||
-    userRole === USER_ROLES.GANADERO_AVICOLA
+    userRole === USER_ROLES.GANADERO_AVICOLA ||
+    userRole === USER_ROLES.AGRICULTOR
   ) {
     specializedProducts = products.filter((p) => isProductInUserDomain(user, p));
   } else {
@@ -139,9 +141,10 @@ export const DashboardPage = () => {
   } else if (
     userRole === USER_ROLES.GANADERO_PORCINO ||
     userRole === USER_ROLES.GANADERO_BOVINO ||
-    userRole === USER_ROLES.GANADERO_AVICOLA
+    userRole === USER_ROLES.GANADERO_AVICOLA ||
+    userRole === USER_ROLES.AGRICULTOR
   ) {
-    // Ganaderos: pedidos que contengan ÚNICAMENTE productos de su especialidad ganadera
+    // Productores / Ganaderos: pedidos que contengan referencias de su especialidad
     const domainIds = new Set(specializedProducts.map((p) => String(p.id)));
     const domainNames = new Set(specializedProducts.map((p) => (p.name || '').toLowerCase()));
     allowedOrders = orders.filter((o) =>
@@ -179,7 +182,8 @@ export const DashboardPage = () => {
               userRole === USER_ROLES.EMPLEADO_INVENTARIO ||
               userRole === USER_ROLES.GANADERO_PORCINO ||
               userRole === USER_ROLES.GANADERO_BOVINO ||
-              userRole === USER_ROLES.GANADERO_AVICOLA) && (
+              userRole === USER_ROLES.GANADERO_AVICOLA ||
+              userRole === USER_ROLES.AGRICULTOR) && (
               <Link to="/admin/products" className="btn btn-primary btn-sm">
                 <Layers size={16} />
                 <span>
@@ -189,6 +193,8 @@ export const DashboardPage = () => {
                     ? 'Control de Carne de Res'
                     : userRole === USER_ROLES.GANADERO_AVICOLA
                     ? 'Control de Huevos y Pollo'
+                    : userRole === USER_ROLES.AGRICULTOR
+                    ? 'Control Cosechas y Fruver'
                     : 'Gestión CRUD'}
                 </span>
               </Link>
@@ -382,29 +388,32 @@ export const DashboardPage = () => {
           </div>
         )}
 
-        {/* --- VISTA: GANADEROS (PORCINO, BOVINO, AVÍCOLA) --- */}
+        {/* --- VISTA: PRODUCTORES Y GANADEROS (PORCINO, BOVINO, AVÍCOLA, AGRICULTOR) --- */}
         {(userRole === USER_ROLES.GANADERO_PORCINO ||
           userRole === USER_ROLES.GANADERO_BOVINO ||
-          userRole === USER_ROLES.GANADERO_AVICOLA) && (
+          userRole === USER_ROLES.GANADERO_AVICOLA ||
+          userRole === USER_ROLES.AGRICULTOR) && (
           <div className="farmer-specialized-layout">
             <div className="row-grid-4 mb-4">
               <StatCard
-                title="Productos en Producción"
+                title={userRole === USER_ROLES.AGRICULTOR ? 'Cosechas y Cultivos' : 'Productos en Producción'}
                 value={specializedProducts.length}
                 subtitle={
                   userRole === USER_ROLES.GANADERO_PORCINO
                     ? 'Cortes de cerdo exclusivos'
                     : userRole === USER_ROLES.GANADERO_BOVINO
                     ? 'Cortes de res exclusivos'
-                    : 'Huevos y aves de corral'
+                    : userRole === USER_ROLES.GANADERO_AVICOLA
+                    ? 'Huevos y aves de corral'
+                    : 'Frutas, verduras y hortalizas'
                 }
-                icon={userRole === USER_ROLES.GANADERO_AVICOLA ? Egg : Beef}
+                icon={userRole === USER_ROLES.GANADERO_AVICOLA ? Egg : userRole === USER_ROLES.AGRICULTOR ? Sprout : Beef}
                 variant="primary"
               />
               <StatCard
                 title="Existencias Disponibles"
                 value={specializedProducts.reduce((acc, p) => acc + (Number(p.stock) || 0), 0)}
-                subtitle="Unidades listas para corte y despacho"
+                subtitle="Unidades listas para despacho"
                 icon={Layers}
                 variant="success"
               />
@@ -416,8 +425,8 @@ export const DashboardPage = () => {
                 variant="info"
               />
               <StatCard
-                title="Especialidad Ganadera"
-                value={user?.specialty || 'Producción Pecuaria'}
+                title={userRole === USER_ROLES.AGRICULTOR ? 'Especialidad Agrícola' : 'Especialidad Ganadera'}
+                value={user?.specialty || (userRole === USER_ROLES.AGRICULTOR ? 'Agricultura Campesina' : 'Producción Pecuaria')}
                 subtitle={user?.title || 'Finca de origen'}
                 icon={ShieldCheck}
                 variant="default"
@@ -435,7 +444,9 @@ export const DashboardPage = () => {
                     ? 'Línea Productiva: Porcicultura y Cortes de Cerdo (Exclusivo)'
                     : userRole === USER_ROLES.GANADERO_BOVINO
                     ? 'Línea Productiva: Ganadería Bovina y Cortes de Res (Exclusivo)'
-                    : 'Línea Productiva: Avicultura, Huevos Campesinos y Pollo (Exclusivo)'
+                    : userRole === USER_ROLES.GANADERO_AVICOLA
+                    ? 'Línea Productiva: Avicultura, Huevos Campesinos y Pollo (Exclusivo)'
+                    : 'Línea Productiva: Agricultura Campesina, Huerta, Frutas y Hortalizas (Exclusivo)'
                 }
               />
             </div>
@@ -448,7 +459,9 @@ export const DashboardPage = () => {
                     ? 'Pedidos con Carne de Cerdo'
                     : userRole === USER_ROLES.GANADERO_BOVINO
                     ? 'Pedidos con Carne de Res'
-                    : 'Pedidos con Huevos y Pollo'
+                    : userRole === USER_ROLES.GANADERO_AVICOLA
+                    ? 'Pedidos con Huevos y Pollo'
+                    : 'Pedidos con Frutas, Hortalizas y Despensa'
                 }
                 subtitle="Órdenes exclusivas que contienen referencias de tu especialidad."
               />

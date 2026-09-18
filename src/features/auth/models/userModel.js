@@ -11,6 +11,7 @@ export const USER_ROLES = {
   GANADERO_PORCINO: 'ganadero_porcino',
   GANADERO_BOVINO: 'ganadero_bovino',
   GANADERO_AVICOLA: 'ganadero_avicola',
+  AGRICULTOR: 'agricultor',
 };
 
 export const ROLE_LABELS = {
@@ -22,6 +23,7 @@ export const ROLE_LABELS = {
   [USER_ROLES.GANADERO_PORCINO]: 'Productor / Ganadero Porcino',
   [USER_ROLES.GANADERO_BOVINO]: 'Productor / Ganadero Bovino',
   [USER_ROLES.GANADERO_AVICOLA]: 'Productor / Ganadero Avícola',
+  [USER_ROLES.AGRICULTOR]: 'Productor / Agricultor (Fruver y Huerta)',
 };
 
 /**
@@ -136,5 +138,20 @@ export const INITIAL_USERS = [
     title: 'Granja Avícola Villa Hermosa',
     farmerId: '4',
     specialty: 'Huevos Campesinos y Aves de Corral',
+  },
+  // 11. Agricultor Campesino (Fruver, Hortalizas y Tubérculos)
+  {
+    name: 'Agricultor Don Carlos',
+    email: 'agricultor@agroconnect.com',
+    password: 'Agricultor123',
+    role: USER_ROLES.AGRICULTOR,
+    active: true,
+    avatar: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&auto=format&fit=crop&q=80',
+    title: 'Finca El Mirador - Marinilla',
+    farmerId: '1',
+    specialty: 'Frutas, Verduras y Hortalizas Campesinas (Fruver)',
+    city: 'Marinilla, Antioquia',
+    address: 'Vereda La Esmeralda, Finca El Mirador',
+    phone: '+57 312 458 9012',
   },
 ];

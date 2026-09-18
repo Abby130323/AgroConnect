@@ -77,6 +77,12 @@ const ROLE_PERMISSIONS_MAP = {
     PERMISSIONS.VIEW_PRODUCTION,
     PERMISSIONS.VIEW_ORDERS, // Pedidos relacionados con sus productos
   ],
+  [USER_ROLES.AGRICULTOR]: [
+    PERMISSIONS.VIEW_PRODUCTS,
+    PERMISSIONS.MANAGE_OWN_PRODUCTS,
+    PERMISSIONS.VIEW_PRODUCTION,
+    PERMISSIONS.VIEW_ORDERS, // Pedidos relacionados con sus cosechas
+  ],
 };
 
 /**
@@ -99,11 +105,92 @@ export const canViewAdminPanel = (user) => user?.role === USER_ROLES.ADMIN;
 export const canBuy = (user) => hasPermission(user, PERMISSIONS.BUY);
 
 /**
- * Determina si un producto pertenece estrictamente al dominio de un usuario / rol ganadero.
- * Regla de negocio:
- * - Ganadero Porcino: TODO lo relacionado a carne de cerdo NO MÁS.
- * - Ganadero Bovino: TODO lo relacionado a carne de res NO MÁS.
- * - Ganadero Avícola: TODO lo relacionado a huevos y pollo NO MÁS.
+ * Determina si un producto pertenece estrictamente al dominio de un usuario / rol productor.
+ * Regla de negocio estricta:
+ * - Ganadero Porcino: EXCLUSIVAMENTE carne de cerdo (NO MÁS, sin fruver ni hortalizas).
+ * - Ganadero Bovino: EXCLUSIVAMENTE carne de res (NO MÁS, sin fruver ni hortalizas).
+ * - Ganadero Avícola: EXCLUSIVAMENTE huevos y pollo (NO MÁS, sin fruver ni hortalizas).
+ * - Agricultor: EXCLUSIVAMENTE frutas, verduras, hortalizas, tubérculos y café (NO MÁS, sin carnes).
+ * - Admin y Empleado Inventario: Todo el catálogo.
+ * - Demás roles: Ningún producto para control/edición.
+ */
+// Palabras clave agrícolas (frutas, verduras, hortalizas, tubérculos, plantas, hierbas, café, etc.)
+const AGRI_TERMS = [
+  'lechuga', 'tomate', 'cebolla', 'zanahoria', 'pimentón', 'pimenton', 'espinaca',
+  'papa', 'yuca', 'arracacha', 'ñame', 'name', 'choclo', 'maíz', 'maiz', 'arveja',
+  'fríjol', 'frijol', 'aguacate', 'mango', 'mora', 'lulo', 'maracuyá', 'maracuya',
+  'uchuva', 'banano', 'plátano', 'platano', 'cilantro', 'albahaca', 'hierbabuena',
+  'romero', 'café', 'cafe', 'panela', 'miel', 'fruta', 'verdura', 'hortaliza',
+  'tubérculo', 'tuberculo', 'huerta', 'cosecha', 'francesa'
+];
+
+const BEEF_REGEX = /\b(res|reses|angus|punta de anca|lomo fino|solomito|churrasco|costilla de res|sobrebarriga|carne molida)\b/i;
+const PORK_REGEX = /\b(cerdo|cerdos|porcino|porcina|bondiola|tocino|chicharr[oó]n|panceta|chuleta)\b/i;
+const POULTRY_REGEX = /\b(huevo|huevos|pollo|pollos|pechuga|pechugas|pernil|perniles|muslo|muslos|gallina|alitas|av[ií]cola)\b/i;
+
+export const isPorkProduct = (product) => {
+  if (!product) return false;
+  const name = (product.name || product.nombre || '').toLowerCase();
+  const meat = (product.meatType || '').toLowerCase();
+
+  // Si tiene meatType explícito
+  if (meat === 'cerdo') return true;
+  if (meat === 'res' || meat === 'avicola' || meat === 'pollo') return false;
+
+  // Si es vegetal / fruta / huerta
+  if (AGRI_TERMS.some((k) => name.includes(k))) return false;
+
+  // Si coincide con términos de cerdo con frontera de palabra
+  return PORK_REGEX.test(name);
+};
+
+export const isBeefProduct = (product) => {
+  if (!product) return false;
+  const name = (product.name || product.nombre || '').toLowerCase();
+  const meat = (product.meatType || '').toLowerCase();
+
+  // Si tiene meatType explícito
+  if (meat === 'res') return true;
+  if (meat === 'cerdo' || meat === 'avicola' || meat === 'pollo') return false;
+
+  // Si es vegetal / fruta / huerta (evita falsos positivos como cilantro 'fresco')
+  if (AGRI_TERMS.some((k) => name.includes(k))) return false;
+
+  // Si coincide con términos de res con frontera de palabra
+  return BEEF_REGEX.test(name);
+};
+
+export const isPoultryProduct = (product) => {
+  if (!product) return false;
+  const name = (product.name || product.nombre || '').toLowerCase();
+  const meat = (product.meatType || '').toLowerCase();
+  const cat = String(product.categoryId || product.categoria || '');
+
+  if (meat === 'avicola' || meat === 'pollo') return true;
+  if (meat === 'cerdo' || meat === 'res') return false;
+  if (cat === '8') return true;
+
+  if (AGRI_TERMS.some((k) => name.includes(k))) return false;
+
+  return POULTRY_REGEX.test(name);
+};
+
+export const isAgriculturalProduct = (product) => {
+  if (!product) return false;
+  // Si pertenece a alguna categoría de carne o aves, nunca es agrícola
+  if (isPorkProduct(product) || isBeefProduct(product) || isPoultryProduct(product)) {
+    return false;
+  }
+  return true;
+};
+
+/**
+ * Determina si un producto pertenece estrictamente al dominio de un usuario / rol productor.
+ * Regla de negocio estricta:
+ * - Ganadero Porcino: EXCLUSIVAMENTE carne de cerdo (NO MÁS, sin fruver ni hortalizas).
+ * - Ganadero Bovino: EXCLUSIVAMENTE carne de res (NO MÁS, sin fruver ni hortalizas).
+ * - Ganadero Avícola: EXCLUSIVAMENTE huevos y pollo (NO MÁS, sin fruver ni hortalizas).
+ * - Agricultor: EXCLUSIVAMENTE frutas, verduras, hortalizas, tubérculos y café (NO MÁS, sin carnes).
  * - Admin y Empleado Inventario: Todo el catálogo.
  * - Demás roles: Ningún producto para control/edición.
  */
@@ -112,54 +199,24 @@ export const isProductInUserDomain = (user, product) => {
   if (user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.EMPLEADO_INVENTARIO) return true;
   if (!product) return false;
 
-  const pName = (product.name || '').toLowerCase();
-  const pMeat = (product.meatType || '').toLowerCase();
-  const catId = String(product.categoryId || product.categoria || '');
-
+  // 1. Ganadero Porcino (SOLO cerdo)
   if (user.role === USER_ROLES.GANADERO_PORCINO) {
-    return (
-      pMeat === 'cerdo' ||
-      catId === '2' ||
-      pName.includes('cerdo') ||
-      pName.includes('bondiola') ||
-      pName.includes('tocino') ||
-      pName.includes('chicharrón') ||
-      pName.includes('chicharron') ||
-      pName.includes('panceta') ||
-      pName.includes('chuleta de cerdo')
-    );
+    return isPorkProduct(product);
   }
 
+  // 2. Ganadero Bovino (SOLO res)
   if (user.role === USER_ROLES.GANADERO_BOVINO) {
-    return (
-      pMeat === 'res' ||
-      catId === '1' ||
-      catId === '7' ||
-      pName.includes('res') ||
-      pName.includes('angus') ||
-      pName.includes('punta de anca') ||
-      pName.includes('lomo fino') ||
-      pName.includes('solomito') ||
-      pName.includes('churrasco') ||
-      pName.includes('costilla de res') ||
-      pName.includes('sobrebarriga') ||
-      pName.includes('carne molida')
-    );
+    return isBeefProduct(product);
   }
 
+  // 3. Ganadero Avícola (SOLO pollo y huevos)
   if (user.role === USER_ROLES.GANADERO_AVICOLA) {
-    return (
-      pMeat === 'avicola' ||
-      pMeat === 'pollo' ||
-      catId === '8' ||
-      pName.includes('huevo') ||
-      pName.includes('pollo') ||
-      pName.includes('pechuga') ||
-      pName.includes('pernil') ||
-      pName.includes('muslo') ||
-      pName.includes('gallina') ||
-      pName.includes('alitas')
-    );
+    return isPoultryProduct(product);
+  }
+
+  // 4. Agricultor (SOLO frutas, verduras, hortalizas, tubérculos, plátanos, café y huerta)
+  if (user.role === USER_ROLES.AGRICULTOR) {
+    return isAgriculturalProduct(product);
   }
 
   return false;

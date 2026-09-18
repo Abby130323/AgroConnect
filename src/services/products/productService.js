@@ -6,7 +6,7 @@ const LOCAL_STORAGE_PRODUCTS_KEY = 'agroconnect_products_cache';
 
 /**
  * Normaliza un producto proveniente de MockAPI (/producto)
- * Asegura el modelo { id, name, description, price, stock, categoryId, farmerId, imageUrl, unit, active }
+ * Se establece que el modelo tenga por obligatorio { id, name, description, price, stock, categoryId, farmerId, imageUrl, unit, active }
  * más propiedades específicas de carnes (meatType, cut, weight, presentation, conservation).
  */
 const normalizeProduct = (p) => {

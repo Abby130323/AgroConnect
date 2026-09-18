@@ -13,6 +13,8 @@ export const API_ENDPOINTS = {
   FARMERS: '/cliente',
   USERS: '/usuario',
   ORDERS: '/orden',
+  ORDER_STATUSES: '/estado_orden',
+  INFORMATION: '/information',
   PROMOTIONS: '/promotions',
 };
 

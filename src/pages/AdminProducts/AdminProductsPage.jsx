@@ -8,7 +8,8 @@ import {
   BookOpen, 
   FolderOpen,
   Beef,
-  Egg
+  Egg,
+  Sprout
 } from 'lucide-react';
 import useAgroCatalog from '../../features/products/hooks/useAgroCatalog';
 import { useProducts } from '../../features/products/hooks/useProducts';
@@ -54,7 +55,7 @@ export const AdminProductsPage = () => {
   const categoryMap = new Map(categories.map((c) => [String(c.id), c.name]));
   const farmerMap = new Map(farmers.map((f) => [String(f.id), `${f.name} (${f.farmName || f.location})`]));
 
-  // Regla estricta: Ganadero Porcino sólo ve cerdo, Bovino sólo res, Avícola sólo huevos/pollo.
+  // Regla estricta: Ganadero Porcino sólo ve cerdo, Bovino sólo res, Avícola sólo huevos/pollo, Agricultor sólo fruver/cosechas.
   const domainProducts = products.filter((p) => isProductInUserDomain(user, p));
 
   const filteredProducts = domainProducts.filter((p) => {
@@ -73,6 +74,8 @@ export const AdminProductsPage = () => {
       ? 'Panel Ganadero • Ganadería Bovina'
       : userRole === USER_ROLES.GANADERO_AVICOLA
       ? 'Panel Ganadero • Avicultura'
+      : userRole === USER_ROLES.AGRICULTOR
+      ? 'Panel de Producción Agrícola • Huerta y Fruver'
       : 'Panel de Control REST';
 
   const pageTitle = 
@@ -82,6 +85,8 @@ export const AdminProductsPage = () => {
       ? 'Gestión Exclusiva de Carne de Res'
       : userRole === USER_ROLES.GANADERO_AVICOLA
       ? 'Gestión Exclusiva de Huevos y Pollo'
+      : userRole === USER_ROLES.AGRICULTOR
+      ? 'Gestión Exclusiva de Frutas, Hortalizas y Cosechas'
       : 'Gestión de Productos y Cortes (CRUD)';
 
   const pageSubtitle = 
@@ -91,7 +96,9 @@ export const AdminProductsPage = () => {
       ? 'Control exclusivo de inventario de cortes de res. Por políticas de rol, no puedes ver ni gestionar otros productos.'
       : userRole === USER_ROLES.GANADERO_AVICOLA
       ? 'Control exclusivo de inventario de huevos y pollo campesino. Por políticas de rol, no puedes ver ni gestionar otros productos.'
-      : 'Administración de alimentos y carnes comunicándose directamente con los endpoints de MockAPI.';
+      : userRole === USER_ROLES.AGRICULTOR
+      ? 'Control exclusivo de cosechas campesinas, frutas, verduras, hortalizas y café. Por políticas de rol, no gestionas productos cárnicos ni avícolas.'
+      : 'Administración de alimentos y cosechas comunicándose directamente con los endpoints de MockAPI.';
 
   const handleOpenCreate = () => {
     setEditingProduct(null);
@@ -164,6 +171,8 @@ export const AdminProductsPage = () => {
                   ? 'Nuevo Corte de Res'
                   : userRole === USER_ROLES.GANADERO_AVICOLA
                   ? 'Nuevo Producto Avícola'
+                  : userRole === USER_ROLES.AGRICULTOR
+                  ? 'Nueva Cosecha / Fruver'
                   : 'Nuevo Producto'}
               </span>
             </Button>

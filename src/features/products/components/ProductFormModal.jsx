@@ -54,14 +54,14 @@ export const ProductFormModal = ({
           setFormData((prev) => ({
             ...prev,
             meatType: 'Cerdo',
-            categoryId: '2',
+            categoryId: '7',
             farmerId: String(currentUser?.farmerId || '6'),
           }));
         } else if (userRole === USER_ROLES.GANADERO_BOVINO) {
           setFormData((prev) => ({
             ...prev,
             meatType: 'Res',
-            categoryId: '1',
+            categoryId: '7',
             farmerId: String(currentUser?.farmerId || '3'),
           }));
         } else if (userRole === USER_ROLES.GANADERO_AVICOLA) {
@@ -70,6 +70,14 @@ export const ProductFormModal = ({
             meatType: 'Avicola',
             categoryId: '8',
             farmerId: String(currentUser?.farmerId || '4'),
+          }));
+        } else if (userRole === USER_ROLES.AGRICULTOR) {
+          setFormData((prev) => ({
+            ...prev,
+            meatType: '',
+            cut: '',
+            categoryId: '2',
+            farmerId: String(currentUser?.farmerId || '1'),
           }));
         }
       }
@@ -88,24 +96,24 @@ export const ProductFormModal = ({
     onClose();
   };
 
-  // Filtrado de opciones estrictas por rol ganadero
+  // Filtrado de opciones estrictas por rol ganadero o agricultor
   let filteredCategories = categories;
   let filteredFarmers = farmers;
   let meatTypeOptions = [
-    { value: '', label: 'No aplica (Agrícola / Vegetal)' },
+    { value: '', label: 'No aplica (Agrícola / Fruver)' },
     { value: 'Res', label: 'Carne de Res' },
     { value: 'Cerdo', label: 'Carne de Cerdo' },
     { value: 'Avicola', label: 'Avícola (Huevos y Pollo)' },
   ];
 
   if (userRole === USER_ROLES.GANADERO_PORCINO) {
-    filteredCategories = categories.filter((c) => String(c.id) === '2' || (c.name || '').toLowerCase().includes('cerdo'));
+    filteredCategories = categories.filter((c) => String(c.id) === '7' || (c.name || '').toLowerCase().includes('cerdo') || (c.name || '').toLowerCase().includes('carnes seleccionadas'));
     meatTypeOptions = [{ value: 'Cerdo', label: 'Carne de Cerdo (Exclusivo)' }];
     if (currentUser?.farmerId) {
       filteredFarmers = farmers.filter((f) => String(f.id) === String(currentUser.farmerId));
     }
   } else if (userRole === USER_ROLES.GANADERO_BOVINO) {
-    filteredCategories = categories.filter((c) => String(c.id) === '1' || String(c.id) === '7' || (c.name || '').toLowerCase().includes('res'));
+    filteredCategories = categories.filter((c) => String(c.id) === '7' || (c.name || '').toLowerCase().includes('res') || (c.name || '').toLowerCase().includes('carnes seleccionadas'));
     meatTypeOptions = [{ value: 'Res', label: 'Carne de Res (Exclusivo)' }];
     if (currentUser?.farmerId) {
       filteredFarmers = farmers.filter((f) => String(f.id) === String(currentUser.farmerId));
@@ -113,6 +121,15 @@ export const ProductFormModal = ({
   } else if (userRole === USER_ROLES.GANADERO_AVICOLA) {
     filteredCategories = categories.filter((c) => String(c.id) === '8' || (c.name || '').toLowerCase().includes('avícol') || (c.name || '').toLowerCase().includes('avicol'));
     meatTypeOptions = [{ value: 'Avicola', label: 'Avícola (Huevos y Pollo)' }];
+    if (currentUser?.farmerId) {
+      filteredFarmers = farmers.filter((f) => String(f.id) === String(currentUser.farmerId));
+    }
+  } else if (userRole === USER_ROLES.AGRICULTOR) {
+    filteredCategories = categories.filter((c) => {
+      const name = (c.name || '').toLowerCase();
+      return !name.includes('carne') && !name.includes('avícol') && !name.includes('avicol') && String(c.id) !== '7' && String(c.id) !== '8';
+    });
+    meatTypeOptions = [{ value: '', label: 'No aplica (Agrícola / Fruver / Huerta)' }];
     if (currentUser?.farmerId) {
       filteredFarmers = farmers.filter((f) => String(f.id) === String(currentUser.farmerId));
     }
@@ -233,35 +250,37 @@ export const ProductFormModal = ({
           />
         </div>
 
-        {/* Sección específica para productos cárnicos */}
-        <div className="form-section-highlight">
-          <h4 className="form-section-title">Especificaciones Cárnicas (Opcional)</h4>
-          <div className="form-grid-3">
-            <Select
-              label="Tipo de Carne"
-              name="meatType"
-              value={formData.meatType || ''}
-              onChange={handleChange}
-              options={meatTypeOptions}
-            />
+        {/* Sección específica para productos cárnicos (oculta para agricultores) */}
+        {userRole !== USER_ROLES.AGRICULTOR && (
+          <div className="form-section-highlight">
+            <h4 className="form-section-title">Especificaciones Cárnicas (Opcional)</h4>
+            <div className="form-grid-3">
+              <Select
+                label="Tipo de Carne"
+                name="meatType"
+                value={formData.meatType || ''}
+                onChange={handleChange}
+                options={meatTypeOptions}
+              />
 
-            <Input
-              label="Corte Específico"
-              name="cut"
-              value={formData.cut || ''}
-              onChange={handleChange}
-              placeholder="Ej: Punta de Anca, Costilla"
-            />
+              <Input
+                label="Corte Específico"
+                name="cut"
+                value={formData.cut || ''}
+                onChange={handleChange}
+                placeholder="Ej: Punta de Anca, Costilla"
+              />
 
-            <Input
-              label="Conservación"
-              name="conservation"
-              value={formData.conservation || ''}
-              onChange={handleChange}
-              placeholder="Ej: Refrigerado 0°C a 4°C"
-            />
+              <Input
+                label="Conservación"
+                name="conservation"
+                value={formData.conservation || ''}
+                onChange={handleChange}
+                placeholder="Ej: Refrigerado 0°C a 4°C"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="form-grid-2">
           <Select

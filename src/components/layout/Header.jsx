@@ -76,6 +76,8 @@ export const Header = () => {
                     ? 'Panel Bovino'
                     : user?.role === USER_ROLES.GANADERO_AVICOLA
                     ? 'Panel Avícola'
+                    : user?.role === USER_ROLES.AGRICULTOR
+                    ? 'Panel Agrícola'
                     : 'Mi Panel'}
                 </span>
               </NavLink>
@@ -84,7 +86,8 @@ export const Header = () => {
                 user?.role === USER_ROLES.EMPLEADO_INVENTARIO ||
                 user?.role === USER_ROLES.GANADERO_PORCINO ||
                 user?.role === USER_ROLES.GANADERO_BOVINO ||
-                user?.role === USER_ROLES.GANADERO_AVICOLA) && (
+                user?.role === USER_ROLES.GANADERO_AVICOLA ||
+                user?.role === USER_ROLES.AGRICULTOR) && (
                 <NavLink
                   to="/admin/products"
                   className={({ isActive }) => `nav-link nav-link-admin ${isActive ? 'active' : ''}`}
@@ -97,6 +100,8 @@ export const Header = () => {
                       ? 'Control Res'
                       : user?.role === USER_ROLES.GANADERO_AVICOLA
                       ? 'Control Huevos/Pollo'
+                      : user?.role === USER_ROLES.AGRICULTOR
+                      ? 'Control Cosechas/Fruver'
                       : user?.role === USER_ROLES.EMPLEADO_INVENTARIO
                       ? 'Inventario CRUD'
                       : 'Admin CRUD'}
@@ -225,6 +230,8 @@ export const Header = () => {
                         ? 'Panel Bovino (Carne de Res)'
                         : user?.role === USER_ROLES.GANADERO_AVICOLA
                         ? 'Panel Avícola (Huevos y Pollo)'
+                        : user?.role === USER_ROLES.AGRICULTOR
+                        ? 'Panel Agrícola (Fruver y Huerta)'
                         : 'Mi Panel de Control'}
                     </span>
                   </NavLink>
@@ -233,7 +240,8 @@ export const Header = () => {
                     user?.role === USER_ROLES.EMPLEADO_INVENTARIO ||
                     user?.role === USER_ROLES.GANADERO_PORCINO ||
                     user?.role === USER_ROLES.GANADERO_BOVINO ||
-                    user?.role === USER_ROLES.GANADERO_AVICOLA) && (
+                    user?.role === USER_ROLES.GANADERO_AVICOLA ||
+                    user?.role === USER_ROLES.AGRICULTOR) && (
                     <NavLink
                       to="/admin/products"
                       className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
@@ -247,6 +255,8 @@ export const Header = () => {
                           ? 'Control Exclusivo Res'
                           : user?.role === USER_ROLES.GANADERO_AVICOLA
                           ? 'Control Exclusivo Huevos y Pollo'
+                          : user?.role === USER_ROLES.AGRICULTOR
+                          ? 'Control Exclusivo Cosechas y Fruver'
                           : user?.role === USER_ROLES.EMPLEADO_INVENTARIO
                           ? 'Gestión de Inventario'
                           : 'CRUD Productos'}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Beef, Egg, ShieldCheck, MapPin, Award } from 'lucide-react';
+import { Beef, Egg, Sprout, ShieldCheck, MapPin, Award } from 'lucide-react';
 import { USER_ROLES } from '../../../features/auth/models/userModel.js';
 import { formatCurrency } from '../../../utils/formatters.js';
 
@@ -10,14 +10,23 @@ export const ProductionWidget = ({
   specialtyTitle,
   userRole,
 }) => {
-  const IconComponent = userRole === USER_ROLES.GANADERO_AVICOLA ? Egg : Beef;
+  const IconComponent = 
+    userRole === USER_ROLES.GANADERO_AVICOLA 
+      ? Egg 
+      : userRole === USER_ROLES.AGRICULTOR 
+      ? Sprout 
+      : Beef;
 
   return (
     <div className="dashboard-widget-card">
       <div className="widget-header">
         <div className="d-flex align-items-center gap-2">
           <IconComponent size={20} className="text-harvest-amber" />
-          <h3 className="widget-title">Ficha de Producción Agropecuaria</h3>
+          <h3 className="widget-title">
+            {userRole === USER_ROLES.AGRICULTOR 
+              ? 'Ficha de Producción y Cosechas Agrícolas' 
+              : 'Ficha de Producción Agropecuaria'}
+          </h3>
         </div>
         <span className="badge badge-primary text-xs">Trazabilidad de Origen</span>
       </div>
@@ -25,7 +34,7 @@ export const ProductionWidget = ({
       <div className="production-banner p-4 bg-muted rounded my-3">
         <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
           <div>
-            <h4 className="font-bold text-lg mb-1">{farmer?.farmName || user?.title || 'Finca y Unidad Productiva'}</h4>
+            <h4 className="font-bold text-lg mb-1">{farmer?.farmName || user?.title || 'Finca y Parcela Campesina'}</h4>
             <p className="text-muted text-sm mb-0">
               <MapPin size={14} className="d-inline mr-1" />
               {farmer?.location || 'Colombia • Producción Agroecológica Sostenible'}
@@ -34,8 +43,12 @@ export const ProductionWidget = ({
           <div className="d-flex align-items-center gap-2">
             <ShieldCheck size={22} className="text-success" />
             <div className="text-xs">
-              <strong className="d-block">Certificación Sanitaria</strong>
-              <span className="text-muted">Buenas Prácticas Ganaderas</span>
+              <strong className="d-block">Certificación de Calidad</strong>
+              <span className="text-muted">
+                {userRole === USER_ROLES.AGRICULTOR 
+                  ? 'Buenas Prácticas Agrícolas (BPA)' 
+                  : 'Buenas Prácticas Ganaderas (BPG)'}
+              </span>
             </div>
           </div>
         </div>

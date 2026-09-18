@@ -65,6 +65,7 @@ export const AppRoutes = () => {
               USER_ROLES.GANADERO_PORCINO,
               USER_ROLES.GANADERO_BOVINO,
               USER_ROLES.GANADERO_AVICOLA,
+              USER_ROLES.AGRICULTOR,
             ]}
           >
             <AdminProductsPage />

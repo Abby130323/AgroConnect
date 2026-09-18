@@ -216,7 +216,7 @@ export const INITIAL_PRODUCTS = [
     imageUrl: "https://images.unsplash.com/photo-1594041680534-e8c8cdebd659?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1594041680534-e8c8cdebd659?w=800&auto=format&fit=crop&q=80",
     categoryId: "1",
-    farmerId: "6",
+    farmerId: "3",
     active: true,
     meatType: "Res",
     cut: "Molida Especial",
@@ -283,7 +283,7 @@ export const INITIAL_PRODUCTS = [
     imageUrl: "https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=800&auto=format&fit=crop&q=80",
     categoryId: "2",
-    farmerId: "1",
+    farmerId: "6",
     active: true,
     meatType: "Cerdo",
     cut: "Tocino Barriguero",
@@ -357,7 +357,7 @@ export const INITIAL_PRODUCTS = [
     imageUrl: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?w=800&auto=format&fit=crop&q=80",
     categoryId: "3",
-    farmerId: "3",
+    farmerId: "1",
     active: true,
     createdAt: "2026-09-03T11:00:00.000Z"
   },
@@ -371,7 +371,7 @@ export const INITIAL_PRODUCTS = [
     imageUrl: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&auto=format&fit=crop&q=80",
     categoryId: "3",
-    farmerId: "6",
+    farmerId: "1",
     active: true,
     createdAt: "2026-09-04T14:30:00.000Z"
   },
@@ -385,7 +385,7 @@ export const INITIAL_PRODUCTS = [
     imageUrl: "https://images.unsplash.com/photo-1553279768-865429fa0078?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1553279768-865429fa0078?w=800&auto=format&fit=crop&q=80",
     categoryId: "3",
-    farmerId: "6",
+    farmerId: "1",
     active: false,
     createdAt: "2026-09-05T10:00:00.000Z"
   },
@@ -399,7 +399,7 @@ export const INITIAL_PRODUCTS = [
     imageUrl: "https://images.unsplash.com/photo-1628744448840-55bdb2497bd4?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1628744448840-55bdb2497bd4?w=800&auto=format&fit=crop&q=80",
     categoryId: "3",
-    farmerId: "4",
+    farmerId: "1",
     active: true,
     createdAt: "2026-09-06T08:45:00.000Z"
   },
@@ -459,7 +459,7 @@ export const INITIAL_PRODUCTS = [
     imageUrl: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=800&auto=format&fit=crop&q=80",
     categoryId: "4",
-    farmerId: "4",
+    farmerId: "1",
     active: true,
     createdAt: "2026-09-03T09:00:00.000Z"
   },
@@ -473,7 +473,7 @@ export const INITIAL_PRODUCTS = [
     imageUrl: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=800&auto=format&fit=crop&q=80",
     categoryId: "4",
-    farmerId: "4",
+    farmerId: "1",
     active: true,
     createdAt: "2026-09-04T15:00:00.000Z"
   },
@@ -501,7 +501,7 @@ export const INITIAL_PRODUCTS = [
     imageUrl: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=800&auto=format&fit=crop&q=80",
     categoryId: "4",
-    farmerId: "4",
+    farmerId: "1",
     active: true,
     createdAt: "2026-09-06T11:10:00.000Z"
   },
@@ -515,7 +515,7 @@ export const INITIAL_PRODUCTS = [
     imageUrl: "https://images.unsplash.com/photo-1580201092675-a0a6a6cafbb1?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1580201092675-a0a6a6cafbb1?w=800&auto=format&fit=crop&q=80",
     categoryId: "4",
-    farmerId: "4",
+    farmerId: "1",
     active: true,
     createdAt: "2026-09-07T10:15:00.000Z"
   },
@@ -547,7 +547,7 @@ export const INITIAL_PRODUCTS = [
     imageUrl: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=800&auto=format&fit=crop&q=80",
     categoryId: "5",
-    farmerId: "4",
+    farmerId: "1",
     active: true,
     createdAt: "2026-09-01T06:00:00.000Z"
   },
@@ -561,7 +561,7 @@ export const INITIAL_PRODUCTS = [
     imageUrl: "https://images.unsplash.com/photo-1590165482129-1b8b27698780?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1590165482129-1b8b27698780?w=800&auto=format&fit=crop&q=80",
     categoryId: "5",
-    farmerId: "4",
+    farmerId: "1",
     active: true,
     createdAt: "2026-09-02T13:40:00.000Z"
   },
@@ -575,7 +575,7 @@ export const INITIAL_PRODUCTS = [
     imageUrl: "https://images.unsplash.com/photo-1598514983318-2f64f8f4796c?w=800&auto=format&fit=crop&q=80",
     image: "https://images.unsplash.com/photo-1598514983318-2f64f8f4796c?w=800&auto=format&fit=crop&q=80",
     categoryId: "5",
-    farmerId: "6",
+    farmerId: "1",
     active: true,
     createdAt: "2026-09-03T10:20:00.000Z"
   },
