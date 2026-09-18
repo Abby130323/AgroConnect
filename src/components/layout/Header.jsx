@@ -78,6 +78,8 @@ export const Header = () => {
                     ? 'Panel Avícola'
                     : user?.role === USER_ROLES.AGRICULTOR
                     ? 'Panel Agrícola'
+                    : user?.role === USER_ROLES.TRANSPORTADOR
+                    ? 'Rutas de Despacho'
                     : 'Mi Panel'}
                 </span>
               </NavLink>
@@ -232,6 +234,8 @@ export const Header = () => {
                         ? 'Panel Avícola (Huevos y Pollo)'
                         : user?.role === USER_ROLES.AGRICULTOR
                         ? 'Panel Agrícola (Fruver y Huerta)'
+                        : user?.role === USER_ROLES.TRANSPORTADOR
+                        ? 'Rutas de Despacho (Transportador)'
                         : 'Mi Panel de Control'}
                     </span>
                   </NavLink>

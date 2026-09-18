@@ -16,6 +16,8 @@ export const PERMISSIONS = {
   VIEW_PRODUCTION: 'view_production',
   MANAGE_OWN_PRODUCTS: 'manage_own_products',
   BUY: 'buy',
+  VIEW_LOGISTICS: 'view_logistics',
+  UPDATE_DELIVERY_STATUS: 'update_delivery_status',
 };
 
 /**
@@ -35,6 +37,8 @@ const ROLE_PERMISSIONS_MAP = {
     PERMISSIONS.VIEW_PRODUCTION,
     PERMISSIONS.MANAGE_OWN_PRODUCTS,
     PERMISSIONS.BUY,
+    PERMISSIONS.VIEW_LOGISTICS,
+    PERMISSIONS.UPDATE_DELIVERY_STATUS,
   ],
   [USER_ROLES.CLIENTE]: [
     PERMISSIONS.VIEW_PRODUCTS,
@@ -52,6 +56,8 @@ const ROLE_PERMISSIONS_MAP = {
     PERMISSIONS.MANAGE_ORDERS,
     PERMISSIONS.VIEW_ORDERS,
     PERMISSIONS.VIEW_CLIENTS,
+    PERMISSIONS.VIEW_LOGISTICS,
+    PERMISSIONS.UPDATE_DELIVERY_STATUS,
   ],
   [USER_ROLES.EMPLEADO_ATENCION]: [
     PERMISSIONS.VIEW_PRODUCTS,
@@ -83,6 +89,12 @@ const ROLE_PERMISSIONS_MAP = {
     PERMISSIONS.VIEW_PRODUCTION,
     PERMISSIONS.VIEW_ORDERS, // Pedidos relacionados con sus cosechas
   ],
+  [USER_ROLES.TRANSPORTADOR]: [
+    PERMISSIONS.VIEW_PRODUCTS,
+    PERMISSIONS.VIEW_ORDERS,
+    PERMISSIONS.VIEW_LOGISTICS,
+    PERMISSIONS.UPDATE_DELIVERY_STATUS,
+  ],
 };
 
 /**
@@ -103,6 +115,8 @@ export const canManageOrders = (user) => hasPermission(user, PERMISSIONS.MANAGE_
 export const canManageInventory = (user) => hasPermission(user, PERMISSIONS.MANAGE_INVENTORY);
 export const canViewAdminPanel = (user) => user?.role === USER_ROLES.ADMIN;
 export const canBuy = (user) => hasPermission(user, PERMISSIONS.BUY);
+export const canViewLogistics = (user) => hasPermission(user, PERMISSIONS.VIEW_LOGISTICS);
+export const canUpdateDeliveryStatus = (user) => hasPermission(user, PERMISSIONS.UPDATE_DELIVERY_STATUS);
 
 /**
  * Determina si un producto pertenece estrictamente al dominio de un usuario / rol productor.

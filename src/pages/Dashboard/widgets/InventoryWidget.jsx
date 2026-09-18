@@ -46,20 +46,20 @@ export const InventoryWidget = ({
         </div>
       </div>
 
-      <div className="inventory-table-wrapper mt-3">
-        <table className="table-custom">
+      <div className="inventory-table-wrapper table-responsive mt-3">
+        <table className="table-custom" style={{ minWidth: '720px' }}>
           <thead>
             <tr>
-              <th>Producto</th>
-              <th>Presentación</th>
-              <th>Precio</th>
-              <th>Existencias</th>
-              <th>Estado</th>
-              {canUpdateStock && <th>Gestión</th>}
+              <th style={{ minWidth: '220px' }}>Producto</th>
+              <th style={{ width: '160px', whiteSpace: 'nowrap' }}>Presentación</th>
+              <th style={{ width: '120px', whiteSpace: 'nowrap' }}>Precio</th>
+              <th style={{ width: '140px', whiteSpace: 'nowrap' }}>Existencias</th>
+              <th style={{ width: '110px', whiteSpace: 'nowrap' }}>Estado</th>
+              {canUpdateStock && <th style={{ width: '110px', whiteSpace: 'nowrap' }}>Gestión</th>}
             </tr>
           </thead>
           <tbody>
-            {products.slice(0, 8).map((prod) => {
+            {products.slice(0, 10).map((prod) => {
               const stockNum = Number(prod.stock);
               const isOut = stockNum <= 0;
               const isLow = stockNum > 0 && stockNum <= 10;
@@ -74,18 +74,18 @@ export const InventoryWidget = ({
                         className="inventory-thumb"
                       />
                       <div>
-                        <strong>{prod.name}</strong>
+                        <strong className="d-block text-sm">{prod.name}</strong>
                         {prod.meatType && (
-                          <small className="d-block text-muted">
+                          <small className="d-block text-muted text-xs">
                             {prod.meatType} • {prod.cut}
                           </small>
                         )}
                       </div>
                     </div>
                   </td>
-                  <td>{prod.presentation || prod.unit || 'kg'}</td>
-                  <td>{formatCurrency(prod.price)}</td>
-                  <td>
+                  <td style={{ whiteSpace: 'nowrap' }}>{prod.presentation || prod.unit || 'kg'}</td>
+                  <td style={{ whiteSpace: 'nowrap', fontWeight: 600 }}>{formatCurrency(prod.price)}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
                     {editingId === prod.id ? (
                       <div className="d-flex align-items-center gap-1">
                         <input
@@ -93,7 +93,8 @@ export const InventoryWidget = ({
                           min="0"
                           value={tempStock}
                           onChange={(e) => setTempStock(e.target.value)}
-                          className="form-control form-control-sm w-20"
+                          className="form-control form-control-sm"
+                          style={{ width: '70px' }}
                         />
                         <button
                           type="button"
@@ -107,7 +108,7 @@ export const InventoryWidget = ({
                       <strong>{prod.stock} {prod.unit}</strong>
                     )}
                   </td>
-                  <td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
                     {isOut ? (
                       <span className="badge badge-danger text-xs">Agotado</span>
                     ) : isLow ? (
@@ -117,7 +118,7 @@ export const InventoryWidget = ({
                     )}
                   </td>
                   {canUpdateStock && (
-                    <td>
+                    <td style={{ whiteSpace: 'nowrap' }}>
                       {editingId !== prod.id && (
                         <button
                           type="button"

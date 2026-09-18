@@ -2390,7 +2390,7 @@
 
 @media (min-width: 992px) {
   .grid-2-cols {
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -2861,8 +2861,35 @@
 /* ==========================================================================
    21. TABLAS Y COMPONENTES AUXILIARES
    ========================================================================== */
+.table-responsive,
+.orders-table-wrapper,
+.inventory-table-wrapper,
+.admin-table-card {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+}
+
+.table-responsive::-webkit-scrollbar,
+.orders-table-wrapper::-webkit-scrollbar,
+.inventory-table-wrapper::-webkit-scrollbar,
+.admin-table-card::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb,
+.orders-table-wrapper::-webkit-scrollbar-thumb,
+.inventory-table-wrapper::-webkit-scrollbar-thumb,
+.admin-table-card::-webkit-scrollbar-thumb {
+  background-color: var(--border-color, #cbd5e1);
+  border-radius: 4px;
+}
+
 .table-custom {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
   text-align: left;
   font-size: var(--font-size-sm);
@@ -2877,12 +2904,55 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
 }
 
 .table-custom td {
-  padding: var(--space-4);
+  padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
+}
+
+.table-custom tr:hover td {
+  background-color: rgba(0, 0, 0, 0.015);
+}
+
+/* Celdas de cliente y fechas */
+.customer-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 180px;
+}
+
+.customer-cell .customer-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  display: block;
+}
+
+.customer-cell .customer-loc {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  display: block;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.order-date-cell {
+  white-space: nowrap;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.status-select-dropdown {
+  min-width: 135px;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color, #cbd5e1);
+  background-color: #ffffff;
+  cursor: pointer;
 }
 
 .inventory-thumb {

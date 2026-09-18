@@ -144,9 +144,9 @@ async function runTests() {
   assert(totalUnits === 3, `Unidades totales en carrito calculadas correctamente (${totalUnits} uds)`);
   assert(subtotal === productToAdd.price * 3, `Subtotal liquidado correctamente (${formatCurrency(subtotal)})`);
 
-  // 7. AUTENTICACION Y 11 ROLES DEMO
-  console.log('\n[7] Verificacion de los 11 Roles de Usuario Predefinidos');
-  assert(INITIAL_USERS.length === 11, 'Existen exactamente 11 cuentas de usuario predefinidas');
+  // 7. AUTENTICACION Y 12 ROLES DEMO
+  console.log('\n[7] Verificacion de los 12 Roles de Usuario Predefinidos');
+  assert(INITIAL_USERS.length === 12, `Existen exactamente 12 cuentas de usuario predefinidas (encontradas: ${INITIAL_USERS.length})`);
 
   const admin = INITIAL_USERS.find(u => u.email === 'admin@agroconnect.com');
   const cliente1 = INITIAL_USERS.find(u => u.email === 'cliente1@agroconnect.com');
@@ -159,6 +159,7 @@ async function runTests() {
   const ganBovino = INITIAL_USERS.find(u => u.email === 'bovino@agroconnect.com');
   const ganAvicola = INITIAL_USERS.find(u => u.email === 'avicola@agroconnect.com');
   const agricultor = INITIAL_USERS.find(u => u.email === 'agricultor@agroconnect.com');
+  const transportador = INITIAL_USERS.find(u => u.email === 'transportador@agroconnect.com');
 
   assert(admin && admin.role === USER_ROLES.ADMIN, 'Cuenta Administrador validada (admin@agroconnect.com)');
   assert(cliente1 && cliente2 && cliente3, '3 Cuentas de Cliente validadas (cliente1, cliente2, cliente3)');
@@ -169,6 +170,7 @@ async function runTests() {
   assert(ganBovino && ganBovino.role === USER_ROLES.GANADERO_BOVINO, 'Ganadero Bovino validado (bovino@agroconnect.com)');
   assert(ganAvicola && ganAvicola.role === USER_ROLES.GANADERO_AVICOLA, 'Ganadero Avicola validado (avicola@agroconnect.com)');
   assert(agricultor && agricultor.role === USER_ROLES.AGRICULTOR, 'Agricultor validado (agricultor@agroconnect.com)');
+  assert(transportador && transportador.role === USER_ROLES.TRANSPORTADOR, 'Transportador validado (transportador@agroconnect.com)');
 
   // 8. MATRIZ DE PERMISOS (RBAC)
   console.log('\n[8] Evaluacion de la Matriz de Permisos (RBAC)');
@@ -179,7 +181,10 @@ async function runTests() {
   assert(canViewAdminPanel(ganBovino) === false, 'Ganadero NO puede acceder a panel administrativo global');
   assert(canBuy(cliente1) === true, 'Cliente tiene permiso de compra');
   assert(canBuy(empInv) === false, 'Empleado no tiene perfil de comprador directo');
+  assert(canBuy(transportador) === false, 'Transportador es operador logistico (no comprador directo)');
   assert(canManageInventory(empInv) === true, 'Empleado Inventario puede gestionar inventario');
+  assert(hasPermission(transportador, PERMISSIONS.VIEW_LOGISTICS) === true, 'Transportador tiene permiso para VIEW_LOGISTICS');
+  assert(hasPermission(transportador, PERMISSIONS.UPDATE_DELIVERY_STATUS) === true, 'Transportador tiene permiso para UPDATE_DELIVERY_STATUS');
 
   // Restriccion de gestion de productos propios para ganaderos
   const bovineProduct = { id: '1', farmerId: '3', name: 'Punta de Anca' };
@@ -267,13 +272,33 @@ async function runTests() {
   assert(!isProductInUserDomain(agricultor, beefProduct), 'Agricultor NO tiene acceso a cortes de res (NO MAS)');
   assert(!isProductInUserDomain(agricultor, poultryProduct), 'Agricultor NO tiene acceso a carne de pollo/huevos (NO MAS)');
 
-  // Clientes y Empleados de logística NO tienen dominio sobre paneles de productores
+  // Clientes, Empleados y Transportador NO tienen dominio sobre paneles de productores
   assert(!isProductInUserDomain(clienteUser, porkProduct), 'Cliente NO tiene dominio de control sobre productos ganaderos');
   assert(!isProductInUserDomain(clienteUser, fruitProduct), 'Cliente NO tiene dominio de control sobre productos agricolas');
   assert(!isProductInUserDomain(empPedidosUser, beefProduct), 'Empleado de pedidos NO tiene dominio de control sobre productos ganaderos');
+  assert(!isProductInUserDomain(transportador, porkProduct), 'Transportador NO tiene dominio sobre productos de ganaderos');
+  assert(!isProductInUserDomain(transportador, fruitProduct), 'Transportador NO tiene dominio sobre cosechas de agricultores');
 
   // Pero el Cliente SI puede comprar todos los productos en el catálogo público
   assert(canBuy(clienteUser) === true, 'Cliente tiene autorización de compra en el catálogo público');
+
+  // 12. LOGISTICA RURAL, CADENA DE FRIO Y COMISION DE INTERMEDIACION
+  console.log('\n[12] Logistica Rural, Cadena de Frio y Comision AgroConnect');
+  const coldProduct = { ...beefProduct, requiresColdChain: true };
+  const dryProduct = { ...fruitProduct, requiresColdChain: false };
+
+  const calculateShippingForItems = (items) => {
+    const hasCold = items.some(i => i.meatType || i.requiresColdChain);
+    return hasCold ? 12500 : 8500;
+  };
+
+  const calculatePlatformFee = (subtotal) => Math.round(subtotal * 0.06);
+
+  assert(calculateShippingForItems([coldProduct]) === 12500, 'Flete con carne/frio liquidado en $12.500 COP (Termoking 0°C a 4°C)');
+  assert(calculateShippingForItems([dryProduct]) === 8500, 'Flete de carga seca/fruver liquidado en $8.500 COP (Furgon ventilado)');
+  assert(calculateShippingForItems([coldProduct, dryProduct]) === 12500, 'Pedido mixto requiere cadena de frio ($12.500 COP)');
+  assert(calculatePlatformFee(100000) === 6000, 'Comision AgroConnect por intermediacion liquidada al 6% ($6.000 de $100.000)');
+  assert(calculatePlatformFee(250000) === 15000, 'Comision AgroConnect liquidada al 6% ($15.000 de $250.000)');
 
   console.log('\n==========================================');
   console.log(`RESULTADOS: ${passed} de ${total} pruebas aprobadas (${Math.round((passed / total) * 100)}%)`);

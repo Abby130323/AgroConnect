@@ -78,6 +78,10 @@ export const CheckoutPage = () => {
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
+      const isCold = Boolean(totals.requiresColdChain);
+      const shipCost = Number(totals.shipping || (isCold ? 12500 : 8500));
+      const platformFee = Number(totals.platformFee || Math.round(totals.subtotal * 0.06));
+
       const orderPayload = {
         userId: user ? String(user.id) : null,
         customerName: data.fullName,
@@ -94,10 +98,22 @@ export const CheckoutPage = () => {
         })),
         subtotal: totals.subtotal,
         discount: totals.discount || 0,
+        shippingCost: shipCost,
+        platformFee: platformFee,
         total: totals.total,
         status: 'pendiente',
         createdAt: new Date().toISOString(),
         notes: data.notes || '',
+        // Atributos de transporte y cadena de frío
+        requiresColdChain: isCold,
+        transportType: isCold ? 'Cadena de Frío (0°C a 4°C)' : 'Carga Seca / Carga General',
+        transportBadge: isCold ? 'Refrigerado Termoking' : 'Furgón Ventilado',
+        originFarm: isCold 
+          ? 'Finca La Porcina / Ganadería Santa Elena (Antioquia)' 
+          : 'Finca Villa Hermosa / Huerta Campesina (Antioquia)',
+        carrierName: 'Transportes AgroExpress',
+        carrierPhone: '+57 315 889 4433',
+        vehiclePlate: isCold ? 'TRK-892 (Termoking)' : 'AGR-441 (Seco)',
       };
 
       // Registro real en MockAPI /orden
@@ -119,7 +135,7 @@ export const CheckoutPage = () => {
       setConfirmedOrder(savedOrder);
       clearCart();
       toast.success('¡Pedido registrado con éxito en MockAPI!', {
-        description: `Código de orden asignado: #${savedOrder.id}`,
+        description: `Código de orden asignado: #${savedOrder.id} (${savedOrder.transportBadge})`,
       });
     } catch (err) {
       toast.error('Error al formalizar el pedido', {
@@ -322,8 +338,27 @@ export const CheckoutPage = () => {
                 )}
 
                 <div className="breakdown-row">
-                  <span>Envío logístico</span>
-                  <span>{totals.shipping === 0 ? 'Gratis' : formatCurrency(totals.shipping)}</span>
+                  <div>
+                    <span>Logística y Transporte Rural</span>
+                    <div className="text-xs text-muted mt-1">
+                      {totals.requiresColdChain ? (
+                        <span className="badge badge-primary text-xs" style={{ background: '#e0f2fe', color: '#0369a1', border: '1px solid #bae6fd' }}>
+                          ❄️ Cadena de Frío (0°C a 4°C)
+                        </span>
+                      ) : (
+                        <span className="badge badge-neutral text-xs">
+                          📦 Carga Seca Campesina
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <span className="font-bold">{formatCurrency(totals.shipping)}</span>
+                </div>
+
+                <div className="checkout-logistics-hint p-2 my-2 bg-muted rounded text-xs text-muted">
+                  <span>
+                    ℹ️ <strong>Intermediación AgroConnect:</strong> Recolección certificada en finca campesina y entrega climatizada en destino final.
+                  </span>
                 </div>
 
                 <div className="breakdown-row total-row">
@@ -340,7 +375,7 @@ export const CheckoutPage = () => {
           <Modal
             isOpen={true}
             onClose={() => navigate('/products')}
-            title="Pedido Registrado Correctamente"
+            title="Pedido Registrado Correctamente en MockAPI"
             size="md"
           >
             <div className="order-success-content text-center">
@@ -358,14 +393,28 @@ export const CheckoutPage = () => {
                 <strong>{confirmedOrder.shippingAddress}, {confirmedOrder.city}</strong>.
               </p>
 
-              <div className="order-summary-box text-left">
-                <div className="order-summary-row">
+              <div className="order-summary-box text-left p-3 bg-muted rounded">
+                <div className="order-summary-row mb-1">
                   <span>Estado del despacho:</span>
                   <strong className="text-primary font-bold">Pendiente de Preparación</strong>
                 </div>
-                <div className="order-summary-row">
+                <div className="order-summary-row mb-1">
+                  <span>Tipo de Transporte:</span>
+                  <strong className={confirmedOrder.requiresColdChain ? 'text-info' : 'text-secondary'}>
+                    {confirmedOrder.transportBadge || (confirmedOrder.requiresColdChain ? 'Refrigerado Termoking' : 'Furgón Ventilado')}
+                  </strong>
+                </div>
+                <div className="order-summary-row mb-1">
+                  <span>Finca de Recolección:</span>
+                  <span className="text-sm font-medium">{confirmedOrder.originFarm || 'Finca Rural Certificada'}</span>
+                </div>
+                <div className="order-summary-row mb-1">
+                  <span>Operador y Vehículo:</span>
+                  <span className="text-sm font-medium">{confirmedOrder.carrierName} ({confirmedOrder.vehiclePlate})</span>
+                </div>
+                <div className="order-summary-row mt-2 pt-2" style={{ borderTop: '1px solid var(--border-color, #e5e7eb)' }}>
                   <span>Total liquidado:</span>
-                  <strong>{formatCurrency(confirmedOrder.total)}</strong>
+                  <strong className="text-lg text-primary">{formatCurrency(confirmedOrder.total)}</strong>
                 </div>
               </div>
 

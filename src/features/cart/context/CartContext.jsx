@@ -62,10 +62,15 @@ export const CartProvider = ({ children }) => {
           productId: String(product.id),
           name: product.name,
           price: Number(product.price),
-          image: product.image,
+          image: product.image || product.imageUrl,
+          imageUrl: product.imageUrl || product.image,
           unit: product.unit || 'kg',
           stock: Number(product.stock),
           quantity: requestedQty,
+          meatType: product.meatType || null,
+          categoryId: String(product.categoryId || '1'),
+          refrigerated: Boolean(product.refrigerated),
+          frozen: Boolean(product.frozen),
         };
 
         return [...prevItems, newItem];
@@ -270,7 +275,35 @@ export const CartProvider = ({ children }) => {
       appliedPromotion = { name: 'Descuento por Volumen (10% OFF)', percent: 10 };
     }
 
-    const shipping = subtotal > 0 ? (subtotal >= 80000 ? 0 : 7000) : 0;
+    // Detección de requerimiento de Cadena de Frío (carnes, porcinos, bovinos, avícolas) vs Carga Seca
+    const requiresColdChain = items.some((item) => {
+      if (item.meatType) return true;
+      if (item.refrigerated || item.frozen) return true;
+      const lower = (item.name || '').toLowerCase();
+      return (
+        lower.includes('costilla') ||
+        lower.includes('lomo') ||
+        lower.includes('punta de anca') ||
+        lower.includes('carne') ||
+        lower.includes('pechuga') ||
+        lower.includes('muslo') ||
+        lower.includes('chicharr') ||
+        lower.includes('tocino') ||
+        lower.includes('solomito') ||
+        lower.includes('tabla') ||
+        lower.includes('aguja') ||
+        lower.includes('milanesa')
+      );
+    });
+
+    // Flete logístico rural discreto y especializado:
+    // $12,500 COP para productos con cadena de frío (Termoking 0°C a 4°C)
+    // $8,500 COP para carga seca campesina y fruver
+    const shipping = subtotal > 0 ? (requiresColdChain ? 12500 : 8500) : 0;
+    
+    // Comisión de intermediación AgroConnect (6% del subtotal de venta)
+    const platformFee = Math.round(subtotal * 0.06);
+
     const total = Math.max(0, subtotal - discount + shipping);
 
     return {
@@ -280,8 +313,12 @@ export const CartProvider = ({ children }) => {
       discount,
       appliedPromotion,
       shipping,
+      requiresColdChain,
+      transportType: requiresColdChain ? 'Cadena de Frío (0°C a 4°C)' : 'Carga Seca / Carga General',
+      transportBadge: requiresColdChain ? 'Refrigerado Termoking' : 'Furgón Ventilado',
+      platformFee,
       total,
-      isFreeShipping: subtotal >= 80000 && subtotal > 0,
+      isFreeShipping: false,
     };
   }, [items]);
 

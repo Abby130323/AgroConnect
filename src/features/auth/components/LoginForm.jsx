@@ -159,7 +159,7 @@ export const LoginForm = () => {
       <div className="quick-access-section mt-5">
         <div className="quick-access-header">
           <Sparkles size={16} className="text-harvest-amber" />
-          <h4 className="quick-access-title">Cuentas Rápidas de Demostración (10 Roles)</h4>
+          <h4 className="quick-access-title">Cuentas Rápidas de Demostración (12 Roles)</h4>
         </div>
         <p className="quick-access-desc">
           Haz clic en cualquiera de los roles para cargar sus credenciales de prueba al instante:

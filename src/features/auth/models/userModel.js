@@ -12,6 +12,7 @@ export const USER_ROLES = {
   GANADERO_BOVINO: 'ganadero_bovino',
   GANADERO_AVICOLA: 'ganadero_avicola',
   AGRICULTOR: 'agricultor',
+  TRANSPORTADOR: 'transportador',
 };
 
 export const ROLE_LABELS = {
@@ -24,6 +25,7 @@ export const ROLE_LABELS = {
   [USER_ROLES.GANADERO_BOVINO]: 'Productor / Ganadero Bovino',
   [USER_ROLES.GANADERO_AVICOLA]: 'Productor / Ganadero Avícola',
   [USER_ROLES.AGRICULTOR]: 'Productor / Agricultor (Fruver y Huerta)',
+  [USER_ROLES.TRANSPORTADOR]: 'Transportador / Operador Logístico Rural',
 };
 
 /**
@@ -153,5 +155,20 @@ export const INITIAL_USERS = [
     city: 'Marinilla, Antioquia',
     address: 'Vereda La Esmeralda, Finca El Mirador',
     phone: '+57 312 458 9012',
+  },
+  // 12. Transportador y Operador Logístico Rural
+  {
+    name: 'Transportes AgroExpress',
+    email: 'transportador@agroconnect.com',
+    password: 'Transportador123',
+    role: USER_ROLES.TRANSPORTADOR,
+    active: true,
+    avatar: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&auto=format&fit=crop&q=80',
+    title: 'Flota Logística Rural y Despachos',
+    specialty: 'Transporte Refrigerado (0°C - 4°C) y Carga Seca Campesina',
+    city: 'Medellín • Rutas Antioquia',
+    address: 'Terminal de Cargas y Acopio Norte, Bodega 14',
+    phone: '+57 315 889 4433',
+    vehiclePlate: 'TRK-892 (Termoking) / AGR-441 (Seco)',
   },
 ];

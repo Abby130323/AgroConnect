@@ -15,7 +15,9 @@ import {
   TrendingUp,
   Clock,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Truck,
+  ThermometerSnowflake
 } from 'lucide-react';
 import { useAuth } from '../../features/auth/hooks/useAuth.js';
 import { USER_ROLES, ROLE_LABELS } from '../../features/auth/models/userModel.js';
@@ -34,6 +36,7 @@ import ProductionWidget from './widgets/ProductionWidget.jsx';
 import SalesWidget from './widgets/SalesWidget.jsx';
 import PromotionsWidget from './widgets/PromotionsWidget.jsx';
 import RecentActivityWidget from './widgets/RecentActivityWidget.jsx';
+import TransportLogisticsWidget from './widgets/TransportLogisticsWidget.jsx';
 import LoadingState from '../../components/feedback/LoadingState.jsx';
 
 export const DashboardPage = () => {
@@ -133,8 +136,14 @@ export const DashboardPage = () => {
 
   // 2. Pedidos permitidos
   let allowedOrders = [];
-  if (userRole === USER_ROLES.ADMIN || userRole === USER_ROLES.EMPLEADO_PEDIDOS || userRole === USER_ROLES.EMPLEADO_ATENCION || userRole === USER_ROLES.EMPLEADO_INVENTARIO) {
-    allowedOrders = orders; // Empleados y Admin ven todas
+  if (
+    userRole === USER_ROLES.ADMIN ||
+    userRole === USER_ROLES.EMPLEADO_PEDIDOS ||
+    userRole === USER_ROLES.EMPLEADO_ATENCION ||
+    userRole === USER_ROLES.EMPLEADO_INVENTARIO ||
+    userRole === USER_ROLES.TRANSPORTADOR
+  ) {
+    allowedOrders = orders; // Empleados, Admin y Transportador ven todas
   } else if (userRole === USER_ROLES.CLIENTE) {
     // Cliente: SOLO pedidos con su propio userId
     allowedOrders = orders.filter((o) => String(o.userId) === String(user.id));
@@ -236,12 +245,15 @@ export const DashboardPage = () => {
               />
             </div>
 
-            <div className="grid-2-cols gap-4 mb-5">
+            <div className="mb-5">
               <OrdersWidget
                 orders={allowedOrders}
                 title="Mis Pedidos Recientes"
                 subtitle="Historial exclusivo de tus compras. No accesible por otros clientes."
               />
+            </div>
+
+            <div className="mb-5">
               <PromotionsWidget
                 promotions={promotions}
                 title="Promociones Disponibles para Ti"
@@ -374,12 +386,15 @@ export const DashboardPage = () => {
               />
             </div>
 
-            <div className="grid-2-cols gap-4 mb-5">
+            <div className="mb-5">
               <OrdersWidget
                 orders={allowedOrders}
                 title="Consulta de Órdenes para Soporte"
                 subtitle="Verifica estados y direcciones de despacho de los clientes."
               />
+            </div>
+
+            <div className="mb-5">
               <PromotionsWidget
                 promotions={promotions}
                 title="Promociones Vigentes para Orientación"
@@ -469,6 +484,49 @@ export const DashboardPage = () => {
           </div>
         )}
 
+        {/* --- VISTA: TRANSPORTADOR / OPERADOR LOGÍSTICO RURAL --- */}
+        {userRole === USER_ROLES.TRANSPORTADOR && (
+          <div className="carrier-logistics-layout">
+            <div className="row-grid-4 mb-4">
+              <StatCard
+                title="Despachos Cadena de Frío"
+                value={orders.filter((o) => o.requiresColdChain).length}
+                subtitle="Cortes y carnes refrigeradas (0°C a 4°C)"
+                icon={ThermometerSnowflake}
+                variant="info"
+              />
+              <StatCard
+                title="Despachos Carga Seca"
+                value={orders.filter((o) => !o.requiresColdChain).length}
+                subtitle="Fruver, hortalizas y despensa"
+                icon={Package}
+                variant="primary"
+              />
+              <StatCard
+                title="Recolecciones en Finca"
+                value={orders.filter((o) => o.status === 'pendiente' || o.status === 'preparando').length}
+                subtitle="Pendientes de retiro en origen"
+                icon={Clock}
+                variant="warning"
+              />
+              <StatCard
+                title="Entregas Exitosas"
+                value={orders.filter((o) => o.status === 'entregado').length}
+                subtitle="Despachos culminados"
+                icon={CheckCircle2}
+                variant="success"
+              />
+            </div>
+
+            <div className="mb-5">
+              <TransportLogisticsWidget
+                orders={orders}
+                onStatusChange={handleStatusChange}
+              />
+            </div>
+          </div>
+        )}
+
         {/* --- VISTA: ADMINISTRADOR GENERAL --- */}
         {userRole === USER_ROLES.ADMIN && (
           <div className="admin-master-dashboard">
@@ -507,15 +565,20 @@ export const DashboardPage = () => {
               <SalesWidget orders={orders} />
             </div>
 
-            <div className="grid-2-cols gap-4 mb-5">
+            <div className="mb-5">
               <OrdersWidget
                 orders={orders}
-                title="Control Global de Órdenes"
+                title="Control Global de Órdenes y Trazabilidad"
+                subtitle="Gestión integral de pedidos, estados de entrega y logística en tiempo real"
                 canChangeStatus={true}
                 onStatusChange={handleStatusChange}
               />
+            </div>
+
+            <div className="mb-5">
               <InventoryWidget
                 products={products}
+                title="Control Global de Inventario y Stock"
                 canUpdateStock={true}
                 onStockUpdate={handleStockUpdate}
               />

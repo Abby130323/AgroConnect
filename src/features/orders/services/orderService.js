@@ -38,6 +38,16 @@ const normalizeOrder = (order) => {
     status: order.status || order.estado_orden || ORDER_STATUS.PENDIENTE,
     createdAt: order.createdAt || order.fecha || new Date().toISOString(),
     notes: order.notes || '',
+    // Campos logísticos de transporte, cadena de frío y comisiones
+    requiresColdChain: Boolean(order.requiresColdChain),
+    transportType: order.transportType || (order.requiresColdChain ? 'Cadena de Frío (0°C a 4°C)' : 'Carga Seca / Carga General'),
+    transportBadge: order.transportBadge || (order.requiresColdChain ? 'Refrigerado Termoking' : 'Furgón Ventilado'),
+    originFarm: order.originFarm || 'Finca y Acopio Rural (Antioquia)',
+    shippingCost: Number(order.shippingCost || (order.requiresColdChain ? 12500 : 8500)),
+    platformFee: Number(order.platformFee || Math.round((Number(order.subtotal) || 0) * 0.06)),
+    carrierName: order.carrierName || 'Transportes AgroExpress',
+    carrierPhone: order.carrierPhone || '+57 315 889 4433',
+    vehiclePlate: order.vehiclePlate || (order.requiresColdChain ? 'TRK-892 (Termoking)' : 'AGR-441 (Seco)'),
   };
 };
 
@@ -58,6 +68,11 @@ export const orderService = {
   },
 
   async create(orderData) {
+    const isCold = Boolean(orderData.requiresColdChain);
+    const sub = Number(orderData.subtotal || 0);
+    const ship = Number(orderData.shippingCost || (isCold ? 12500 : 8500));
+    const fee = Number(orderData.platformFee || Math.round(sub * 0.06));
+
     const payload = {
       userId: orderData.userId ? String(orderData.userId) : null,
       customerName: orderData.customerName,
@@ -69,7 +84,7 @@ export const orderService = {
       city: orderData.city,
       items: orderData.items,
       detalle: orderData.items || [],
-      subtotal: Number(orderData.subtotal),
+      subtotal: sub,
       discount: Number(orderData.discount || 0),
       descuento: Number(orderData.discount || 0),
       total: Number(orderData.total),
@@ -80,6 +95,16 @@ export const orderService = {
       createdAt: orderData.createdAt || new Date().toISOString(),
       fecha: orderData.createdAt || new Date().toISOString(),
       notes: orderData.notes || '',
+      // Atributos de transporte y cadena de frío
+      requiresColdChain: isCold,
+      transportType: isCold ? 'Cadena de Frío (0°C a 4°C)' : 'Carga Seca / Carga General',
+      transportBadge: isCold ? 'Refrigerado Termoking' : 'Furgón Ventilado',
+      originFarm: orderData.originFarm || 'Fincas Campesinas de Origen',
+      shippingCost: ship,
+      platformFee: fee,
+      carrierName: 'Transportes AgroExpress',
+      carrierPhone: '+57 315 889 4433',
+      vehiclePlate: isCold ? 'TRK-892 (Termoking)' : 'AGR-441 (Seco)',
     };
     const created = await httpClient.post(API_ENDPOINTS.ORDERS, payload);
     return normalizeOrder(created);
