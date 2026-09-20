@@ -5,5 +5,4 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   base: '/AgroConnect/',
   plugins: [react()],
-  base '/AgroConnect/',
 })
